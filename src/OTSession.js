@@ -71,15 +71,14 @@ export default class OTSession extends Component {
   }
 
   render() {
-    return <div>{this.props.children}</div>;
+    const { className, style } = this.props;
+    return <div className={className} style={style} ref={(node) => { this.node = node; }}>{this.props.children}</div>;
   }
 }
 
 OTSession.propTypes = {
-  children: PropTypes.oneOfType([
-    PropTypes.element,
-    PropTypes.arrayOf(PropTypes.element),
-  ]).isRequired,
+  className: PropTypes.string,
+  style: PropTypes.oneOfType([ PropTypes.object, PropTypes.array ]), // eslint-disable-line react/forbid-prop-types
   apiKey: PropTypes.string.isRequired,
   sessionId: PropTypes.string.isRequired,
   token: PropTypes.string.isRequired,

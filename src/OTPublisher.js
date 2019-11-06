@@ -186,7 +186,7 @@ OTPublisher.propTypes = {
     unpublish: PropTypes.func,
   }),
   className: PropTypes.string,
-  style: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  style: PropTypes.oneOfType([ PropTypes.object, PropTypes.array ]), // eslint-disable-line react/forbid-prop-types
   properties: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   eventHandlers: PropTypes.objectOf(PropTypes.func),
   onInit: PropTypes.func,

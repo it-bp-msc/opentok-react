@@ -10,14 +10,12 @@ export default class OTSession extends Component {
     this.state = {
       streams: [],
     };
+
+    this.createSession();
   }
 
   getChildContext() {
     return { session: this.sessionHelper.session, streams: this.state.streams };
-  }
-
-  componentWillMount() {
-    this.createSession();
   }
 
   componentDidUpdate(prevProps) {

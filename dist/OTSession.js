@@ -39,6 +39,8 @@ var OTSession = function (_Component) {
     _this.state = {
       streams: []
     };
+
+    _this.createSession();
     return _this;
   }
 
@@ -46,11 +48,6 @@ var OTSession = function (_Component) {
     key: 'getChildContext',
     value: function getChildContext() {
       return { session: this.sessionHelper.session, streams: this.state.streams };
-    }
-  }, {
-    key: 'componentWillMount',
-    value: function componentWillMount() {
-      this.createSession();
     }
   }, {
     key: 'componentDidUpdate',

@@ -37,10 +37,8 @@ var OTSession = function (_Component) {
     var _this = _possibleConstructorReturn(this, (OTSession.__proto__ || Object.getPrototypeOf(OTSession)).call(this, props));
 
     _this.state = {
-      streams: []
+      streams: _this.createSession()
     };
-
-    _this.createSession();
     return _this;
   }
 
@@ -53,7 +51,7 @@ var OTSession = function (_Component) {
     key: 'componentDidUpdate',
     value: function componentDidUpdate(prevProps) {
       if (prevProps.apiKey !== this.props.apiKey || prevProps.sessionId !== this.props.sessionId || prevProps.token !== this.props.token) {
-        this.createSession();
+        this.setState({ streams: this.createSession() });
       }
     }
   }, {
@@ -86,7 +84,8 @@ var OTSession = function (_Component) {
 
       var streams = this.sessionHelper.streams;
 
-      this.setState({ streams: streams });
+
+      return streams;
     }
   }, {
     key: 'destroySession',

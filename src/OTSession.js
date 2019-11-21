@@ -8,10 +8,8 @@ export default class OTSession extends Component {
     super(props);
 
     this.state = {
-      streams: [],
+      streams: this.createSession(),
     };
-
-    this.createSession();
   }
 
   getChildContext() {
@@ -24,7 +22,7 @@ export default class OTSession extends Component {
       prevProps.sessionId !== this.props.sessionId ||
       prevProps.token !== this.props.token
     ) {
-      this.createSession();
+      this.setState({ streams: this.createSession() });
     }
   }
 
@@ -53,7 +51,8 @@ export default class OTSession extends Component {
     }
 
     const { streams } = this.sessionHelper;
-    this.setState({ streams });
+
+    return streams;
   }
 
   destroySession() {

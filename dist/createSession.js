@@ -73,8 +73,8 @@ function createSession() {
     streams: streams,
     disconnect: function disconnect() {
       if (session) {
-        session.off(eventHandlers);
         session.disconnect();
+        session.off(eventHandlers);
       }
 
       streams = null;

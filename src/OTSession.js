@@ -58,7 +58,7 @@ export default class OTSession extends Component {
 
   destroySession() {
     if (this.sessionHelper) {
-      this.sessionHelper.disconnect(this.props.eventHandlers);
+      this.sessionHelper.disconnect();
     }
   }
 

@@ -92,7 +92,7 @@ var OTSession = function (_Component) {
     key: 'destroySession',
     value: function destroySession() {
       if (this.sessionHelper) {
-        this.sessionHelper.disconnect(this.props.eventHandlers);
+        this.sessionHelper.disconnect();
       }
     }
   }, {

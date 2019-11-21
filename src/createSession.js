@@ -60,10 +60,14 @@ export default function createSession({
   return {
     session,
     streams,
-    disconnect() {
+    disconnect(userEventHandlers) {
       if (session) {
         session.disconnect();
         session.off(eventHandlers);
+
+        if (userEventHandlers) {
+          session.off(userEventHandlers);
+        }
       }
 
       streams = null;

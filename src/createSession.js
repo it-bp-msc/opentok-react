@@ -22,6 +22,10 @@ export default function createSession({
   let streams = [];
 
   let onStreamCreated = (event) => {
+    if (!streams) {
+      return;
+    }
+
     const index = streams.findIndex(stream => stream.id === event.stream.id);
     if (index < 0) {
       streams.push(event.stream);
@@ -30,6 +34,10 @@ export default function createSession({
   };
 
   let onStreamDestroyed = (event) => {
+    if (!streams) {
+      return;
+    }
+
     const index = streams.findIndex(stream => stream.id === event.stream.id);
     if (index >= 0) {
       streams.splice(index, 1);
@@ -63,6 +71,7 @@ export default function createSession({
     disconnect() {
       if (session) {
         session.disconnect();
+        session.off(eventHandlers);
       }
 
       streams = null;

@@ -29,6 +29,10 @@ function createSession() {
   var streams = [];
 
   var onStreamCreated = function onStreamCreated(event) {
+    if (!streams) {
+      return;
+    }
+
     var index = streams.findIndex(function (stream) {
       return stream.id === event.stream.id;
     });
@@ -39,6 +43,10 @@ function createSession() {
   };
 
   var onStreamDestroyed = function onStreamDestroyed(event) {
+    if (!streams) {
+      return;
+    }
+
     var index = streams.findIndex(function (stream) {
       return stream.id === event.stream.id;
     });
@@ -74,6 +82,7 @@ function createSession() {
     disconnect: function disconnect() {
       if (session) {
         session.disconnect();
+        session.off(eventHandlers);
       }
 
       streams = null;

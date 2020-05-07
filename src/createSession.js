@@ -6,6 +6,7 @@ export default function createSession({
   onStreamsUpdated,
   onConnect,
   onError,
+  options,
 } = {}) {
   if (!apiKey) {
     throw new Error('Missing apiKey');

@@ -37,7 +37,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var OTPublisher = function (_Component) {
   _inherits(OTPublisher, _Component);
 
-  function OTPublisher(props, context) {
+  function OTPublisher(props) {
     _classCallCheck(this, OTPublisher);
 
     var _this = _possibleConstructorReturn(this, (OTPublisher.__proto__ || Object.getPrototypeOf(OTPublisher)).call(this, props));
@@ -52,8 +52,7 @@ var OTPublisher = function (_Component) {
 
     _this.state = {
       publisher: null,
-      lastStreamId: '',
-      session: props.session || context.session || null
+      lastStreamId: ''
     };
     return _this;
   }
@@ -65,7 +64,7 @@ var OTPublisher = function (_Component) {
     }
   }, {
     key: 'componentDidUpdate',
-    value: function componentDidUpdate(prevProps, prevState) {
+    value: function componentDidUpdate(prevProps) {
       var _this2 = this;
 
       var useDefault = function useDefault(value, defaultValue) {
@@ -85,28 +84,27 @@ var OTPublisher = function (_Component) {
         }
       };
 
-      if (shouldUpdate('videoSource', undefined)) {
-        this.destroyPublisher();
-        this.createPublisher();
-        return;
-      }
-
       updatePublisherProperty('publishAudio', true);
       updatePublisherProperty('publishVideo', true);
 
-      if (this.state.session !== prevState.session) {
-        this.destroyPublisher(prevState.session);
+      if (this.getSession() !== this.session || shouldUpdate('videoSource', undefined)) {
+        this.destroyPublisher(this.session);
         this.createPublisher();
       }
     }
   }, {
     key: 'componentWillUnmount',
     value: function componentWillUnmount() {
-      if (this.state.session) {
-        this.state.session.off('sessionConnected', this.sessionConnectedHandler);
+      if (this.session) {
+        this.session.off('sessionConnected', this.sessionConnectedHandler);
       }
 
-      this.destroyPublisher();
+      this.destroyPublisher(this.session);
+    }
+  }, {
+    key: 'getSession',
+    value: function getSession() {
+      return this.props.session || this.context.session;
     }
   }, {
     key: 'getPublisher',
@@ -115,10 +113,8 @@ var OTPublisher = function (_Component) {
     }
   }, {
     key: 'destroyPublisher',
-    value: function destroyPublisher() {
+    value: function destroyPublisher(session) {
       var _this3 = this;
-
-      var session = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.state.session;
 
       delete this.publisherId;
 
@@ -134,6 +130,7 @@ var OTPublisher = function (_Component) {
         if (session) {
           session.unpublish(this.state.publisher);
         }
+
         this.state.publisher.destroy();
       }
     }
@@ -142,15 +139,19 @@ var OTPublisher = function (_Component) {
     value: function publishToSession(publisher) {
       var _this4 = this;
 
+      var session = this.getSession();
+      if (!session || !publisher) return;
+
       var publisherId = this.publisherId;
 
 
-      this.state.session.publish(publisher, function (err) {
+      session.publish(publisher, function (err) {
         if (publisherId !== _this4.publisherId) {
           // Either this publisher has been recreated or the
           // component unmounted so don't invoke any callbacks
           return;
         }
+
         if (err) {
           _this4.errorHandler(err);
         } else if (typeof _this4.props.onPublish === 'function') {
@@ -163,7 +164,9 @@ var OTPublisher = function (_Component) {
     value: function createPublisher() {
       var _this5 = this;
 
-      if (!this.state.session) {
+      var session = this.session = this.getSession();
+
+      if (!session) {
         this.setState({ publisher: null, lastStreamId: '' });
         return;
       }
@@ -198,12 +201,14 @@ var OTPublisher = function (_Component) {
           // component unmounted so don't invoke any callbacks
           return;
         }
+
         if (err) {
           _this5.errorHandler(err);
         } else if (typeof _this5.props.onInit === 'function') {
           _this5.props.onInit();
         }
       });
+
       publisher.on('streamCreated', this.streamCreatedHandler);
 
       if (this.props.eventHandlers && _typeof(this.props.eventHandlers) === 'object') {
@@ -211,10 +216,12 @@ var OTPublisher = function (_Component) {
         publisher.on(handles);
       }
 
-      if (this.state.session.connection) {
-        this.publishToSession(publisher);
-      } else {
-        this.state.session.once('sessionConnected', this.sessionConnectedHandler);
+      if (session) {
+        if (session.connection) {
+          this.publishToSession(publisher);
+        } else {
+          session.once('sessionConnected', this.sessionConnectedHandler);
+        }
       }
 
       this.setState({ publisher: publisher, lastStreamId: '' });

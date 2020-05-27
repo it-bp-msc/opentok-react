@@ -16,11 +16,13 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _createSession2 = require('./createSession');
+var _createSession3 = require('./createSession');
 
-var _createSession3 = _interopRequireDefault(_createSession2);
+var _createSession4 = _interopRequireDefault(_createSession3);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -66,7 +68,7 @@ var OTSession = function (_Component) {
 
       this.destroySession();
 
-      this.sessionHelper = (0, _createSession3.default)({
+      this.sessionHelper = (0, _createSession4.default)(_defineProperty({
         apiKey: this.props.apiKey,
         sessionId: this.props.sessionId,
         token: this.props.token,
@@ -76,7 +78,7 @@ var OTSession = function (_Component) {
         },
         onConnect: this.props.onConnect,
         onError: this.props.onError
-      });
+      }, 'options', this.props.options));
 
       if (this.props.eventHandlers && _typeof(this.props.eventHandlers) === 'object') {
         this.sessionHelper.session.on(this.props.eventHandlers);
@@ -119,7 +121,7 @@ var OTSession = function (_Component) {
 exports.default = OTSession;
 
 
-OTSession.propTypes = {
+OTSession.propTypes = _defineProperty({
   className: _propTypes2.default.string,
   style: _propTypes2.default.oneOfType([_propTypes2.default.object, _propTypes2.default.array]), // eslint-disable-line react/forbid-prop-types
   apiKey: _propTypes2.default.string.isRequired,
@@ -129,12 +131,13 @@ OTSession.propTypes = {
   eventHandlers: _propTypes2.default.objectOf(_propTypes2.default.func),
   onConnect: _propTypes2.default.func,
   onError: _propTypes2.default.func
-};
+}, 'options', _propTypes2.default.object);
 
 OTSession.defaultProps = {
   eventHandlers: null,
   onConnect: null,
-  onError: null
+  onError: null,
+  options: {}
 };
 
 OTSession.childContextTypes = {

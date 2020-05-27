@@ -5,13 +5,12 @@ import { omitBy, isNil } from 'lodash/fp';
 import uuid from 'uuid';
 
 export default class OTPublisher extends Component {
-  constructor(props, context) {
+  constructor(props) {
     super(props);
 
     this.state = {
       publisher: null,
-      lastStreamId: '',
-      session: props.session || context.session || null,
+      lastStreamId: ''
     };
   }
 
@@ -19,7 +18,7 @@ export default class OTPublisher extends Component {
     this.createPublisher();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const useDefault = (value, defaultValue) => (value === undefined ? defaultValue : value);
 
     const shouldUpdate = (key, defaultValue) => {
@@ -35,34 +34,32 @@ export default class OTPublisher extends Component {
       }
     };
 
-    if (shouldUpdate('videoSource', undefined)) {
-      this.destroyPublisher();
-      this.createPublisher();
-      return;
-    }
-
     updatePublisherProperty('publishAudio', true);
     updatePublisherProperty('publishVideo', true);
 
-    if (this.state.session !== prevState.session) {
-      this.destroyPublisher(prevState.session);
+    if (this.getSession() !== this.session || shouldUpdate('videoSource', undefined)) {
+      this.destroyPublisher(this.session);
       this.createPublisher();
     }
   }
 
   componentWillUnmount() {
-    if (this.state.session) {
-      this.state.session.off('sessionConnected', this.sessionConnectedHandler);
+    if (this.session) {
+      this.session.off('sessionConnected', this.sessionConnectedHandler);
     }
 
-    this.destroyPublisher();
+    this.destroyPublisher(this.session);
+  }
+
+  getSession() {
+    return this.props.session || this.context.session;
   }
 
   getPublisher() {
     return this.state.publisher;
   }
 
-  destroyPublisher(session = this.state.session) {
+  destroyPublisher(session) {
     delete this.publisherId;
 
     if (this.state.publisher) {
@@ -80,19 +77,25 @@ export default class OTPublisher extends Component {
       if (session) {
         session.unpublish(this.state.publisher);
       }
+
       this.state.publisher.destroy();
     }
   }
 
   publishToSession(publisher) {
+    var session = this.getSession();
+    if (!session || !publisher)
+      return;
+
     const { publisherId } = this;
 
-    this.state.session.publish(publisher, (err) => {
+    session.publish(publisher, (err) => {
       if (publisherId !== this.publisherId) {
         // Either this publisher has been recreated or the
         // component unmounted so don't invoke any callbacks
         return;
       }
+
       if (err) {
         this.errorHandler(err);
       } else if (typeof this.props.onPublish === 'function') {
@@ -102,7 +105,9 @@ export default class OTPublisher extends Component {
   }
 
   createPublisher() {
-    if (!this.state.session) {
+    var session = this.session = this.getSession();
+
+    if (!session) {
       this.setState({ publisher: null, lastStreamId: '' });
       return;
     }
@@ -136,12 +141,14 @@ export default class OTPublisher extends Component {
         // component unmounted so don't invoke any callbacks
         return;
       }
+
       if (err) {
         this.errorHandler(err);
       } else if (typeof this.props.onInit === 'function') {
         this.props.onInit();
       }
     });
+
     publisher.on('streamCreated', this.streamCreatedHandler);
 
     if (
@@ -152,10 +159,12 @@ export default class OTPublisher extends Component {
       publisher.on(handles);
     }
 
-    if (this.state.session.connection) {
-      this.publishToSession(publisher);
-    } else {
-      this.state.session.once('sessionConnected', this.sessionConnectedHandler);
+    if (session) {
+      if (session.connection) {
+        this.publishToSession(publisher);
+      } else {
+        session.once('sessionConnected', this.sessionConnectedHandler);
+      }
     }
 
     this.setState({ publisher, lastStreamId: '' });

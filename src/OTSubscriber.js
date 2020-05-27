@@ -8,8 +8,6 @@ export default class OTSubscriber extends Component {
 
     this.state = {
       subscriber: null,
-      stream: props.stream || context.stream || null,
-      session: props.session || context.session || null,
       currentRetryAttempt: 0,
     };
     this.maxRetryAttempts = props.maxRetryAttempts || 5;
@@ -20,7 +18,7 @@ export default class OTSubscriber extends Component {
     this.createSubscriber();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const cast = (value, Type, defaultValue) => (value === undefined ? defaultValue : Type(value));
 
     const updateSubscriberProperty = (key) => {
@@ -34,14 +32,22 @@ export default class OTSubscriber extends Component {
     updateSubscriberProperty('subscribeToAudio');
     updateSubscriberProperty('subscribeToVideo');
 
-    if (prevState.session !== this.state.session || prevState.stream !== this.state.stream) {
-      this.destroySubscriber(prevState.session);
+    if (this.getSession() !== this.session || this.getStream() !== this.stream) {
+      this.destroySubscriber(this.session);
       this.createSubscriber();
     }
   }
 
   componentWillUnmount() {
-    this.destroySubscriber();
+    this.destroySubscriber(this.session);
+  }
+
+  getSession() {
+    return this.props.session || this.context.session || null;
+  }
+
+  getStream() {
+    return this.props.stream || this.context.stream || null;
   }
 
   getSubscriber() {
@@ -49,7 +55,10 @@ export default class OTSubscriber extends Component {
   }
 
   createSubscriber() {
-    if (!this.state.session || !this.state.stream) {
+    var session = this.session = this.getSession(),
+        stream  = this.stream = this.getStream();
+
+    if (!session || !stream) {
       this.setState({ subscriber: null });
       return;
     }
@@ -61,8 +70,8 @@ export default class OTSubscriber extends Component {
     this.subscriberId = uuid();
     const { subscriberId } = this;
 
-    const subscriber = this.state.session.subscribe(
-            this.state.stream,
+    const subscriber = session.subscribe(
+            stream,
             container,
             this.props.properties,
             (err) => {
@@ -107,7 +116,7 @@ export default class OTSubscriber extends Component {
     }, this.retryAttemptTimeout);
   }
 
-  destroySubscriber(session = this.props.session) {
+  destroySubscriber(session) {
     delete this.subscriberId;
 
     if (this.state.subscriber) {

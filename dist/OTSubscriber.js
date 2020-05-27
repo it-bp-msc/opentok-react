@@ -38,8 +38,6 @@ var OTSubscriber = function (_Component) {
 
     _this.state = {
       subscriber: null,
-      stream: props.stream || context.stream || null,
-      session: props.session || context.session || null,
       currentRetryAttempt: 0
     };
     _this.maxRetryAttempts = props.maxRetryAttempts || 5;
@@ -54,7 +52,7 @@ var OTSubscriber = function (_Component) {
     }
   }, {
     key: 'componentDidUpdate',
-    value: function componentDidUpdate(prevProps, prevState) {
+    value: function componentDidUpdate(prevProps) {
       var _this2 = this;
 
       var cast = function cast(value, Type, defaultValue) {
@@ -72,15 +70,25 @@ var OTSubscriber = function (_Component) {
       updateSubscriberProperty('subscribeToAudio');
       updateSubscriberProperty('subscribeToVideo');
 
-      if (prevState.session !== this.state.session || prevState.stream !== this.state.stream) {
-        this.destroySubscriber(prevState.session);
+      if (this.getSession() !== this.session || this.getStream() !== this.stream) {
+        this.destroySubscriber(this.session);
         this.createSubscriber();
       }
     }
   }, {
     key: 'componentWillUnmount',
     value: function componentWillUnmount() {
-      this.destroySubscriber();
+      this.destroySubscriber(this.session);
+    }
+  }, {
+    key: 'getSession',
+    value: function getSession() {
+      return this.props.session || this.context.session || null;
+    }
+  }, {
+    key: 'getStream',
+    value: function getStream() {
+      return this.props.stream || this.context.stream || null;
     }
   }, {
     key: 'getSubscriber',
@@ -92,7 +100,10 @@ var OTSubscriber = function (_Component) {
     value: function createSubscriber() {
       var _this3 = this;
 
-      if (!this.state.session || !this.state.stream) {
+      var session = this.session = this.getSession(),
+          stream = this.stream = this.getStream();
+
+      if (!session || !stream) {
         this.setState({ subscriber: null });
         return;
       }
@@ -105,7 +116,7 @@ var OTSubscriber = function (_Component) {
       var subscriberId = this.subscriberId;
 
 
-      var subscriber = this.state.session.subscribe(this.state.stream, container, this.props.properties, function (err) {
+      var subscriber = session.subscribe(stream, container, this.props.properties, function (err) {
         if (subscriberId !== _this3.subscriberId) {
           // Either this subscriber has been recreated or the
           // component unmounted so don't invoke any callbacks
@@ -147,10 +158,8 @@ var OTSubscriber = function (_Component) {
     }
   }, {
     key: 'destroySubscriber',
-    value: function destroySubscriber() {
+    value: function destroySubscriber(session) {
       var _this5 = this;
-
-      var session = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props.session;
 
       delete this.subscriberId;
 

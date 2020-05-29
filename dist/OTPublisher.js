@@ -52,8 +52,13 @@ var OTPublisher = function (_Component) {
 
     _this.state = {
       publisher: null,
-      lastStreamId: ''
+      lastStreamId: '',
+      currentRetryAttempt: 0,
+      published: false
     };
+
+    _this.maxRetryAttempts = props.maxRetryAttempts || 5;
+    _this.retryAttemptTimeout = props.retryAttemptTimeout || 1000;
     return _this;
   }
 
@@ -66,6 +71,8 @@ var OTPublisher = function (_Component) {
     key: 'componentDidUpdate',
     value: function componentDidUpdate(prevProps) {
       var _this2 = this;
+
+      if (!this.state.published) return;
 
       var useDefault = function useDefault(value, defaultValue) {
         return value === undefined ? defaultValue : value;
@@ -80,7 +87,7 @@ var OTPublisher = function (_Component) {
       var updatePublisherProperty = function updatePublisherProperty(key, defaultValue) {
         if (shouldUpdate(key, defaultValue)) {
           var value = useDefault(_this2.props.properties[key], defaultValue);
-          _this2.state.publisher[key](value);
+          _this2.state.publisher[key].call(_this2.state.publisher, value);
         }
       };
 
@@ -88,6 +95,7 @@ var OTPublisher = function (_Component) {
       updatePublisherProperty('publishVideo', true);
 
       if (this.getSession() !== this.session || shouldUpdate('videoSource', undefined)) {
+        (window._console || window.console).log('PUBLISHER UPDATING!', this.getSession() !== this.session, shouldUpdate('videoSource', undefined), this.getSession(), this.session);
         this.destroyPublisher(this.session);
         this.createPublisher();
       }
@@ -127,11 +135,12 @@ var OTPublisher = function (_Component) {
           });
         }
 
-        if (session) {
+        if (session && this.state.published) {
           session.unpublish(this.state.publisher);
         }
 
         this.state.publisher.destroy();
+        this.setState({ publisher: null, published: false });
       }
     }
   }, {
@@ -145,19 +154,40 @@ var OTPublisher = function (_Component) {
       var publisherId = this.publisherId;
 
 
-      session.publish(publisher, function (err) {
-        if (publisherId !== _this4.publisherId) {
-          // Either this publisher has been recreated or the
-          // component unmounted so don't invoke any callbacks
-          return;
+      try {
+        session.publish(publisher, function (err) {
+          if (publisherId !== _this4.publisherId) {
+            // Either this publisher has been recreated or the
+            // component unmounted so don't invoke any callbacks
+            return;
+          }
+
+          if (err && _this4.props.retry && _this4.state.currentRetryAttempt < _this4.maxRetryAttempts - 1) {
+            // Error during publish function
+            _this4.handleRetryPublisher();
+          }
+
+          if (err) {
+            _this4.errorHandler(err);
+          } else {
+            if (_this4.props.eventHandlers && _typeof(_this4.props.eventHandlers) === 'object') {
+              var handles = (0, _fp.omitBy)(_fp.isNil)({ audioLevel: _this4.props.eventHandlers.audioLevel, audioLevelUpdated: _this4.props.eventHandlers.audioLevelUpdated });
+              publisher.on(handles);
+            }
+
+            _this4.setState({ currentRetryAttempt: 0, published: true });
+
+            if (typeof _this4.props.onPublish === 'function') _this4.props.onPublish();
+          }
+        });
+      } catch (e) {
+        if (this.props.retry && this.state.currentRetryAttempt < this.maxRetryAttempts - 1) {
+          // Error during publish function
+          this.handleRetryPublisher();
         }
 
-        if (err) {
-          _this4.errorHandler(err);
-        } else if (typeof _this4.props.onPublish === 'function') {
-          _this4.props.onPublish();
-        }
-      });
+        this.errorHandler(e);
+      }
     }
   }, {
     key: 'createPublisher',
@@ -190,6 +220,7 @@ var OTPublisher = function (_Component) {
           // component unmounted so don't invoke any callbacks
           return;
         }
+
         if (typeof _this5.props.onError === 'function') {
           _this5.props.onError(err);
         }
@@ -212,9 +243,11 @@ var OTPublisher = function (_Component) {
       publisher.on('streamCreated', this.streamCreatedHandler);
 
       if (this.props.eventHandlers && _typeof(this.props.eventHandlers) === 'object') {
-        var handles = (0, _fp.omitBy)(_fp.isNil)(this.props.eventHandlers);
+        var handles = (0, _fp.omitBy)(_fp.isNil)(Object.assign({}, this.props.eventHandlers, { audioLevel: null, audioLevelUpdated: null }));
         publisher.on(handles);
       }
+
+      this.setState({ publisher: publisher, lastStreamId: '' });
 
       if (session) {
         if (session.connection) {
@@ -223,20 +256,33 @@ var OTPublisher = function (_Component) {
           session.once('sessionConnected', this.sessionConnectedHandler);
         }
       }
+    }
+  }, {
+    key: 'handleRetryPublisher',
+    value: function handleRetryPublisher() {
+      var _this6 = this;
 
-      this.setState({ publisher: publisher, lastStreamId: '' });
+      setTimeout(function () {
+        _this6.setState(function (state) {
+          return {
+            currentRetryAttempt: state.currentRetryAttempt + 1
+          };
+        });
+
+        _this6.publishToSession(_this6.state.publisher);
+      }, this.retryAttemptTimeout);
     }
   }, {
     key: 'render',
     value: function render() {
-      var _this6 = this;
+      var _this7 = this;
 
       var _props = this.props,
           className = _props.className,
           style = _props.style;
 
       return _react2.default.createElement('div', { className: className, style: style, ref: function ref(node) {
-          _this6.node = node;
+          _this7.node = node;
         } });
     }
   }]);
@@ -261,6 +307,9 @@ OTPublisher.propTypes = {
   style: _propTypes2.default.oneOfType([_propTypes2.default.object, _propTypes2.default.array]), // eslint-disable-line react/forbid-prop-types
   properties: _propTypes2.default.object, // eslint-disable-line react/forbid-prop-types
   eventHandlers: _propTypes2.default.objectOf(_propTypes2.default.func),
+  retry: _propTypes2.default.bool,
+  maxRetryAttempts: _propTypes2.default.number,
+  retryAttemptTimeout: _propTypes2.default.number,
   onInit: _propTypes2.default.func,
   onPublish: _propTypes2.default.func,
   onError: _propTypes2.default.func
@@ -272,6 +321,9 @@ OTPublisher.defaultProps = {
   style: {},
   properties: {},
   eventHandlers: null,
+  retry: true,
+  maxRetryAttempts: 5,
+  retryAttemptTimeout: 1000,
   onInit: null,
   onPublish: null,
   onError: null

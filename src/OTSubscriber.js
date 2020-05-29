@@ -19,20 +19,30 @@ export default class OTSubscriber extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const cast = (value, Type, defaultValue) => (value === undefined ? defaultValue : Type(value));
+    const cast = (value, Type, defaultValue) => ((value == null) ? defaultValue : Type(value).valueOf());
 
-    const updateSubscriberProperty = (key) => {
-      const previous = cast(prevProps.properties[key], Boolean, true);
-      const current = cast(this.props.properties[key], Boolean, true);
+    const updateSubscriberProperty = (key, type, defaultValue, _methodName) => {
+      var methodName = (_methodName) ? _methodName : key,
+          previous = cast(prevProps.properties[key], type, defaultValue),
+          current = cast(this.props.properties[key], type, defaultValue);
+
       if (previous !== current) {
-        this.state.subscriber[key](current);
+        this.state.subscriber[methodName].call(this.state.subscriber, current);
+
+        if (methodName === 'subscribeToAudio' && current) {
+          var audioVolume = this.props.properties.audioVolume;
+          this.state.subscriber.setAudioVolume((audioVolume != null) ? audioVolume : 100);
+        }
       }
     };
 
-    updateSubscriberProperty('subscribeToAudio');
-    updateSubscriberProperty('subscribeToVideo');
+    updateSubscriberProperty('subscribeToAudio', Boolean, true);
+    updateSubscriberProperty('subscribeToVideo', Boolean, true);
+    updateSubscriberProperty('audioVolume', Number, 100, 'setAudioVolume');
 
     if (this.getSession() !== this.session || this.getStream() !== this.stream) {
+      (window._console || window.console).log('SUBSCRIBER UPDATING!', this.getSession() !== this.session, this.getStream() !== this.stream, this.getSession(), this.session, this.getStream(), this.stream);
+
       this.destroySubscriber(this.session);
       this.createSubscriber();
     }
@@ -70,40 +80,45 @@ export default class OTSubscriber extends Component {
     this.subscriberId = uuid();
     const { subscriberId } = this;
 
-    const subscriber = session.subscribe(
-            stream,
-            container,
-            this.props.properties,
-            (err) => {
-              if (subscriberId !== this.subscriberId) {
-                    // Either this subscriber has been recreated or the
-                    // component unmounted so don't invoke any callbacks
-                return;
-              }
-              if (err &&
-                this.props.retry &&
-                this.state.currentRetryAttempt < (this.maxRetryAttempts - 1)) {
-                // Error during subscribe function
-                this.handleRetrySubscriber();
-                // If there is a retry action, do we want to execute the onError props function?
-                // return;
-              }
-              if (err && typeof this.props.onError === 'function') {
-                this.props.onError(err);
-              } else if (!err && typeof this.props.onSubscribe === 'function') {
-                this.props.onSubscribe();
-              }
-            },
-        );
+    try {
+      const subscriber = session.subscribe(
+        stream,
+        container,
+        this.props.properties,
+        (err) => {
+          if (subscriberId !== this.subscriberId) {
+                // Either this subscriber has been recreated or the
+                // component unmounted so don't invoke any callbacks
+            return;
+          }
 
-    if (
-            this.props.eventHandlers &&
-            typeof this.props.eventHandlers === 'object'
-        ) {
-      subscriber.on(this.props.eventHandlers);
+          if (err && this.props.retry && this.state.currentRetryAttempt < (this.maxRetryAttempts - 1)) {
+            // Error during subscribe function
+            this.handleRetrySubscriber();
+          }
+
+          if (err && typeof this.props.onError === 'function') {
+            this.props.onError(err);
+          } else if (!err && typeof this.props.onSubscribe === 'function') {
+            this.setState({ currentRetryAttempt: 0 });
+            this.props.onSubscribe();
+          }
+        }
+      );
+
+      if (this.props.eventHandlers && typeof this.props.eventHandlers === 'object')
+        subscriber.on(this.props.eventHandlers);
+
+      this.setState({ subscriber });
+    } catch (e) {
+      if (this.props.retry && this.state.currentRetryAttempt < (this.maxRetryAttempts - 1)) {
+        // Error during subscribe function
+        this.handleRetrySubscriber();
+      }
+
+      if (typeof this.props.onError === 'function')
+        this.props.onError(e);
     }
-
-    this.setState({ subscriber });
   }
 
   handleRetrySubscriber() {
@@ -166,7 +181,7 @@ OTSubscriber.defaultProps = {
   className: '',
   style: {},
   properties: {},
-  retry: false,
+  retry: true,
   maxRetryAttempts: 5,
   retryAttemptTimeout: 1000,
   eventHandlers: null,

@@ -95,7 +95,6 @@ var OTPublisher = function (_Component) {
       updatePublisherProperty('publishVideo', true);
 
       if (this.getSession() !== this.session || shouldUpdate('videoSource', undefined)) {
-        (window._console || window.console).log('PUBLISHER UPDATING!', this.getSession() !== this.session, shouldUpdate('videoSource', undefined), this.getSession(), this.session);
         this.destroyPublisher(this.session);
         this.createPublisher();
       }
@@ -176,6 +175,9 @@ var OTPublisher = function (_Component) {
             }
 
             _this4.setState({ currentRetryAttempt: 0, published: true });
+
+            publisher.publishAudio(!!_this4.props.properties.publishAudio);
+            publisher.publishVideo(!!_this4.props.properties.publishVideo);
 
             if (typeof _this4.props.onPublish === 'function') _this4.props.onPublish();
           }

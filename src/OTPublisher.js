@@ -46,7 +46,6 @@ export default class OTPublisher extends Component {
     updatePublisherProperty('publishVideo', true);
 
     if (this.getSession() !== this.session || shouldUpdate('videoSource', undefined)) {
-      (window._console || window.console).log('PUBLISHER UPDATING!', this.getSession() !== this.session, shouldUpdate('videoSource', undefined), this.getSession(), this.session);
       this.destroyPublisher(this.session);
       this.createPublisher();
     }
@@ -118,6 +117,9 @@ export default class OTPublisher extends Component {
           }
 
           this.setState({ currentRetryAttempt: 0, published: true });
+
+          publisher.publishAudio(!!this.props.properties.publishAudio);
+          publisher.publishVideo(!!this.props.properties.publishVideo);
 
           if (typeof this.props.onPublish === 'function')
             this.props.onPublish();

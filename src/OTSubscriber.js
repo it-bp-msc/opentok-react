@@ -41,8 +41,6 @@ export default class OTSubscriber extends Component {
     updateSubscriberProperty('audioVolume', Number, 100, 'setAudioVolume');
 
     if (this.getSession() !== this.session || this.getStream() !== this.stream) {
-      (window._console || window.console).log('SUBSCRIBER UPDATING!', this.getSession() !== this.session, this.getStream() !== this.stream, this.getSession(), this.session, this.getStream(), this.stream);
-
       this.destroySubscriber(this.session);
       this.createSubscriber();
     }

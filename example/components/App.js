@@ -25,7 +25,7 @@ class App extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     OT.registerScreenSharingExtension('chrome', config.CHROME_EXTENSION_ID, 2);
   }
 

@@ -1,12 +1,19 @@
-export default function createSession({
-  apiKey,
-  sessionId,
-  token,
-  options,
-  onStreamsUpdated,
-  onConnect,
-  onError,
-} = {}) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = createSession;
+function createSession() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      apiKey = _ref.apiKey,
+      sessionId = _ref.sessionId,
+      token = _ref.token,
+      options = _ref.options,
+      onStreamsUpdated = _ref.onStreamsUpdated,
+      onConnect = _ref.onConnect,
+      onError = _ref.onError;
+
   if (!apiKey) {
     throw new Error('Missing apiKey');
   }
@@ -19,40 +26,44 @@ export default function createSession({
     throw new Error('Missing token');
   }
 
-  let streams = [];
+  var streams = [];
 
-  let onStreamCreated = (event) => {
+  var onStreamCreated = function onStreamCreated(event) {
     if (!streams) {
       return;
     }
 
-    const index = streams.findIndex(stream => stream.id === event.stream.id);
+    var index = streams.findIndex(function (stream) {
+      return stream.id === event.stream.id;
+    });
     if (index < 0) {
       streams.push(event.stream);
       onStreamsUpdated(streams);
     }
   };
 
-  let onStreamDestroyed = (event) => {
+  var onStreamDestroyed = function onStreamDestroyed(event) {
     if (!streams) {
       return;
     }
 
-    const index = streams.findIndex(stream => stream.id === event.stream.id);
+    var index = streams.findIndex(function (stream) {
+      return stream.id === event.stream.id;
+    });
     if (index >= 0) {
       streams.splice(index, 1);
       onStreamsUpdated(streams);
     }
   };
 
-  let eventHandlers = {
+  var eventHandlers = {
     streamCreated: onStreamCreated,
-    streamDestroyed: onStreamDestroyed,
+    streamDestroyed: onStreamDestroyed
   };
 
-  let session = OT.initSession(apiKey, sessionId, options);
+  var session = OT.initSession(apiKey, sessionId, options);
   session.on(eventHandlers);
-  session.connect(token, (err) => {
+  session.connect(token, function (err) {
     if (!session) {
       // Either this session has been disconnected or OTSession
       // has been unmounted so don't invoke any callbacks
@@ -66,9 +77,9 @@ export default function createSession({
   });
 
   return {
-    session,
-    streams,
-    disconnect() {
+    session: session,
+    streams: streams,
+    disconnect: function disconnect() {
       if (session) {
         session.disconnect();
         session.off(eventHandlers);
@@ -82,6 +93,6 @@ export default function createSession({
 
       this.session = null;
       this.streams = null;
-    },
+    }
   };
 }

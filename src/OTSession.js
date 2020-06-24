@@ -8,16 +8,12 @@ export default class OTSession extends Component {
     super(props);
 
     this.state = {
-      streams: [],
+      streams: this.createSession(),
     };
   }
 
   getChildContext() {
     return { session: this.sessionHelper.session, streams: this.state.streams };
-  }
-
-  componentWillMount() {
-    this.createSession();
   }
 
   componentDidUpdate(prevProps) {
@@ -26,7 +22,7 @@ export default class OTSession extends Component {
       prevProps.sessionId !== this.props.sessionId ||
       prevProps.token !== this.props.token
     ) {
-      this.createSession();
+      this.setState({ streams: this.createSession() });
     }
   }
 
@@ -41,6 +37,7 @@ export default class OTSession extends Component {
       apiKey: this.props.apiKey,
       sessionId: this.props.sessionId,
       token: this.props.token,
+      options: this.props.options,
       onStreamsUpdated: (streams) => { this.setState({ streams }); },
       onConnect: this.props.onConnect,
       onError: this.props.onError,
@@ -55,34 +52,29 @@ export default class OTSession extends Component {
     }
 
     const { streams } = this.sessionHelper;
-    this.setState({ streams });
+
+    return streams;
   }
 
   destroySession() {
     if (this.sessionHelper) {
-      if (
-        this.props.eventHandlers &&
-        typeof this.props.eventHandlers === 'object'
-      ) {
-        this.sessionHelper.session.off(this.props.eventHandlers);
-      }
       this.sessionHelper.disconnect();
     }
   }
 
   render() {
-    return <div>{this.props.children}</div>;
+    const { className, style } = this.props;
+    return <div className={className} style={style} ref={(node) => { this.node = node; }}>{this.props.children}</div>;
   }
 }
 
 OTSession.propTypes = {
-  children: PropTypes.oneOfType([
-    PropTypes.element,
-    PropTypes.arrayOf(PropTypes.element),
-  ]).isRequired,
+  className: PropTypes.string,
+  style: PropTypes.oneOfType([ PropTypes.object, PropTypes.array ]), // eslint-disable-line react/forbid-prop-types
   apiKey: PropTypes.string.isRequired,
   sessionId: PropTypes.string.isRequired,
   token: PropTypes.string.isRequired,
+  options: PropTypes.object,
   eventHandlers: PropTypes.objectOf(PropTypes.func),
   onConnect: PropTypes.func,
   onError: PropTypes.func,

@@ -55,7 +55,7 @@ Alternatively, wrap your top-level component using OpenTok with the [`preloadScr
 
 There is an example application provided in `example/` and you can run it with the following steps:
 
-1. `git clone https://github.com/opentok/opentok-react.git`
+1. `git clone https://github.com/outbreak/opentok-react.git`
 1. `cd opentok-react/example/`
 1. `cp config.template.js config.js`
 1. Edit `config.js`:

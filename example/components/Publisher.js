@@ -1,35 +1,35 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 import { OTPublisher } from '../../src'
-import RadioButtons from './RadioButtons';
-import CheckBox from './CheckBox';
+import RadioButtons from './RadioButtons'
+import CheckBox from './CheckBox'
 
 export default class Publisher extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       error: null,
       audio: true,
       video: true,
-      videoSource: 'camera'
-    };
+      videoSource: 'camera',
+    }
   }
 
   setAudio = (audio) => {
-    this.setState({ audio });
+    this.setState({ audio })
   }
 
   setVideo = (video) => {
-    this.setState({ video });
+    this.setState({ video })
   }
 
   setVideoSource = (videoSource) => {
-    this.setState({ videoSource });
+    this.setState({ videoSource })
   }
 
   onError = (err) => {
-    this.setState({ error: `Failed to publish: ${err.message}` });
+    this.setState({ error: `Failed to publish: ${err.message}` })
   }
 
   render() {
@@ -40,7 +40,8 @@ export default class Publisher extends Component {
           properties={{
             publishAudio: this.state.audio,
             publishVideo: this.state.video,
-            videoSource: this.state.videoSource === 'screen' ? 'screen' : undefined
+            videoSource:
+              this.state.videoSource === 'screen' ? 'screen' : 'camera',
           }}
           onError={this.onError}
         />
@@ -48,12 +49,12 @@ export default class Publisher extends Component {
           buttons={[
             {
               label: 'Camera',
-              value: 'camera'
+              value: 'camera',
             },
             {
               label: 'Screen',
-              value: 'screen'
-            }
+              value: 'screen',
+            },
           ]}
           initialChecked={this.state.videoSource}
           onChange={this.setVideoSource}
@@ -69,6 +70,6 @@ export default class Publisher extends Component {
           onChange={this.setVideo}
         />
       </div>
-    );
+    )
   }
 }

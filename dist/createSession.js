@@ -1,9 +1,10 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = createSession;
+
 function createSession() {
   var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
       apiKey = _ref.apiKey,
@@ -36,6 +37,7 @@ function createSession() {
     var index = streams.findIndex(function (stream) {
       return stream.id === event.stream.id;
     });
+
     if (index < 0) {
       streams.push(event.stream);
       onStreamsUpdated(streams);
@@ -50,6 +52,7 @@ function createSession() {
     var index = streams.findIndex(function (stream) {
       return stream.id === event.stream.id;
     });
+
     if (index >= 0) {
       streams.splice(index, 1);
       onStreamsUpdated(streams);
@@ -60,7 +63,6 @@ function createSession() {
     streamCreated: onStreamCreated,
     streamDestroyed: onStreamDestroyed
   };
-
   var session = OT.initSession(apiKey, sessionId, options);
   session.on(eventHandlers);
   session.connect(token, function (err) {
@@ -69,17 +71,18 @@ function createSession() {
       // has been unmounted so don't invoke any callbacks
       return;
     }
+
     if (err && typeof onError === 'function') {
       onError(err);
     } else if (!err && typeof onConnect === 'function') {
       onConnect();
     }
   });
-
   return {
-    session: session,
-    streams: streams,
-    disconnect: function disconnect() {
+    session,
+    streams,
+
+    disconnect() {
       if (session) {
         session.disconnect();
         session.off(eventHandlers);
@@ -90,9 +93,9 @@ function createSession() {
       onStreamDestroyed = null;
       eventHandlers = null;
       session = null;
-
       this.session = null;
       this.streams = null;
     }
+
   };
 }

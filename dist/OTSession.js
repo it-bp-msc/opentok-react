@@ -1,149 +1,151 @@
-'use strict';
+"use strict";
+
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = void 0;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _react = require('react');
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 
-var _react2 = _interopRequireDefault(_react);
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
 
-var _propTypes = require('prop-types');
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
-var _propTypes2 = _interopRequireDefault(_propTypes);
+var _react = _interopRequireWildcard(require("react"));
 
-var _createSession3 = require('./createSession');
+var _propTypes = _interopRequireDefault(require("prop-types"));
 
-var _createSession4 = _interopRequireDefault(_createSession3);
+var _createSession2 = _interopRequireDefault(require("./createSession"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2.default)(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2.default)(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2.default)(this, result); }; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var OTSession = /*#__PURE__*/function (_Component) {
+  (0, _inherits2.default)(OTSession, _Component);
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var OTSession = function (_Component) {
-  _inherits(OTSession, _Component);
+  var _super = _createSuper(OTSession);
 
   function OTSession(props) {
-    _classCallCheck(this, OTSession);
+    var _this;
 
-    var _this = _possibleConstructorReturn(this, (OTSession.__proto__ || Object.getPrototypeOf(OTSession)).call(this, props));
-
+    (0, _classCallCheck2.default)(this, OTSession);
+    _this = _super.call(this, props);
     _this.state = {
       streams: _this.createSession()
     };
     return _this;
   }
 
-  _createClass(OTSession, [{
-    key: 'getChildContext',
+  (0, _createClass2.default)(OTSession, [{
+    key: "getChildContext",
     value: function getChildContext() {
-      return { session: this.sessionHelper.session, streams: this.state.streams };
+      return {
+        session: this.sessionHelper.session,
+        streams: this.state.streams
+      };
     }
   }, {
-    key: 'componentDidUpdate',
+    key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps) {
       if (prevProps.apiKey !== this.props.apiKey || prevProps.sessionId !== this.props.sessionId || prevProps.token !== this.props.token) {
-        this.setState({ streams: this.createSession() });
+        this.setState({
+          streams: this.createSession()
+        });
       }
     }
   }, {
-    key: 'componentWillUnmount',
+    key: "componentWillUnmount",
     value: function componentWillUnmount() {
       this.destroySession();
     }
   }, {
-    key: 'createSession',
+    key: "createSession",
     value: function createSession() {
       var _this2 = this;
 
       this.destroySession();
-
-      this.sessionHelper = (0, _createSession4.default)(_defineProperty({
+      this.sessionHelper = (0, _createSession2.default)({
         apiKey: this.props.apiKey,
         sessionId: this.props.sessionId,
         token: this.props.token,
         options: this.props.options,
         onStreamsUpdated: function onStreamsUpdated(streams) {
-          _this2.setState({ streams: streams });
+          _this2.setState({
+            streams
+          });
         },
         onConnect: this.props.onConnect,
-        onError: this.props.onError
-      }, 'options', this.props.options));
+        onError: this.props.onError,
+        options: this.props.options
+      });
 
-      if (this.props.eventHandlers && _typeof(this.props.eventHandlers) === 'object') {
+      if (this.props.eventHandlers && typeof this.props.eventHandlers === 'object') {
         this.sessionHelper.session.on(this.props.eventHandlers);
       }
 
       var streams = this.sessionHelper.streams;
-
-
       return streams;
     }
   }, {
-    key: 'destroySession',
+    key: "destroySession",
     value: function destroySession() {
       if (this.sessionHelper) {
         this.sessionHelper.disconnect();
       }
     }
   }, {
-    key: 'render',
+    key: "render",
     value: function render() {
       var _this3 = this;
 
-      var _props = this.props,
-          className = _props.className,
-          style = _props.style;
-
-      return _react2.default.createElement(
-        'div',
-        { className: className, style: style, ref: function ref(node) {
-            _this3.node = node;
-          } },
-        this.props.children
-      );
+      var _this$props = this.props,
+          className = _this$props.className,
+          style = _this$props.style;
+      return /*#__PURE__*/_react.default.createElement("div", {
+        className: className,
+        style: style,
+        ref: function ref(node) {
+          _this3.node = node;
+        }
+      }, this.props.children);
     }
   }]);
-
   return OTSession;
 }(_react.Component);
 
 exports.default = OTSession;
-
-
-OTSession.propTypes = _defineProperty({
-  className: _propTypes2.default.string,
-  style: _propTypes2.default.oneOfType([_propTypes2.default.object, _propTypes2.default.array]), // eslint-disable-line react/forbid-prop-types
-  apiKey: _propTypes2.default.string.isRequired,
-  sessionId: _propTypes2.default.string.isRequired,
-  token: _propTypes2.default.string.isRequired,
-  options: _propTypes2.default.object,
-  eventHandlers: _propTypes2.default.objectOf(_propTypes2.default.func),
-  onConnect: _propTypes2.default.func,
-  onError: _propTypes2.default.func
-}, 'options', _propTypes2.default.object);
-
+OTSession.propTypes = {
+  className: _propTypes.default.string,
+  style: _propTypes.default.oneOfType([_propTypes.default.object, _propTypes.default.array]),
+  // eslint-disable-line react/forbid-prop-types
+  apiKey: _propTypes.default.string.isRequired,
+  sessionId: _propTypes.default.string.isRequired,
+  token: _propTypes.default.string.isRequired,
+  options: _propTypes.default.object,
+  eventHandlers: _propTypes.default.objectOf(_propTypes.default.func),
+  onConnect: _propTypes.default.func,
+  onError: _propTypes.default.func,
+  options: _propTypes.default.object
+};
 OTSession.defaultProps = {
   eventHandlers: null,
   onConnect: null,
   onError: null,
   options: {}
 };
-
 OTSession.childContextTypes = {
-  streams: _propTypes2.default.arrayOf(_propTypes2.default.object),
-  session: _propTypes2.default.shape({
-    subscribe: _propTypes2.default.func,
-    unsubscribe: _propTypes2.default.func
+  streams: _propTypes.default.arrayOf(_propTypes.default.object),
+  session: _propTypes.default.shape({
+    subscribe: _propTypes.default.func,
+    unsubscribe: _propTypes.default.func
   })
 };

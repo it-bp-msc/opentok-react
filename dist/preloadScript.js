@@ -1,61 +1,67 @@
-'use strict';
+"use strict";
+
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 exports.default = preloadScript;
 
-var _react = require('react');
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
 
-var _react2 = _interopRequireDefault(_react);
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
-var _propTypes = require('prop-types');
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _propTypes2 = _interopRequireDefault(_propTypes);
+var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 
-var _reactDisplayName = require('react-display-name');
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 
-var _reactDisplayName2 = _interopRequireDefault(_reactDisplayName);
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
 
-var _scriptjs = require('scriptjs');
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
-var _scriptjs2 = _interopRequireDefault(_scriptjs);
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _react = _interopRequireWildcard(require("react"));
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+var _propTypes = _interopRequireDefault(require("prop-types"));
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _reactDisplayName = _interopRequireDefault(require("react-display-name"));
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+var _scriptjs = _interopRequireDefault(require("scriptjs"));
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2.default)(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2.default)(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2.default)(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 var DEFAULT_SCRIPT_URL = 'https://static.opentok.com/v2/js/opentok.min.js';
-
 /*
 This higher-order component will load the OpenTok client thru a script tag.
 It will render its inner component only when the OpenTok client has loaded.
 In the meantime, it will render a loading element chosen by the developer.
 */
+
 function preloadScript(InnerComponent) {
-  var PreloadScript = function (_Component) {
-    _inherits(PreloadScript, _Component);
+  var PreloadScript = /*#__PURE__*/function (_Component) {
+    (0, _inherits2.default)(PreloadScript, _Component);
+
+    var _super = _createSuper(PreloadScript);
 
     function PreloadScript(props) {
-      _classCallCheck(this, PreloadScript);
+      var _this;
 
-      var _this = _possibleConstructorReturn(this, (PreloadScript.__proto__ || Object.getPrototypeOf(PreloadScript)).call(this, props));
-
-      _this.onScriptLoad = function () {
+      (0, _classCallCheck2.default)(this, PreloadScript);
+      _this = _super.call(this, props);
+      (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "onScriptLoad", function () {
         if (_this.isPresent) {
-          _this.setState({ scriptLoaded: true });
+          _this.setState({
+            scriptLoaded: true
+          });
         }
-      };
-
+      });
       _this.state = {
         scriptLoaded: typeof OT !== 'undefined'
       };
@@ -63,8 +69,8 @@ function preloadScript(InnerComponent) {
       return _this;
     }
 
-    _createClass(PreloadScript, [{
-      key: 'componentDidMount',
+    (0, _createClass2.default)(PreloadScript, [{
+      key: "componentDidMount",
       value: function componentDidMount() {
         this.isPresent = true;
 
@@ -73,43 +79,40 @@ function preloadScript(InnerComponent) {
         }
 
         this.scriptLoading = true;
-
         var scriptUrl = this.props.opentokClientUrl;
-        (0, _scriptjs2.default)(scriptUrl, this.onScriptLoad);
+        (0, _scriptjs.default)(scriptUrl, this.onScriptLoad);
       }
     }, {
-      key: 'componentWillUnmount',
+      key: "componentWillUnmount",
       value: function componentWillUnmount() {
         this.isPresent = false;
       }
     }, {
-      key: 'render',
+      key: "render",
       value: function render() {
-        var _props = this.props,
-            opentokClientUrl = _props.opentokClientUrl,
-            loadingDelegate = _props.loadingDelegate,
-            restProps = _objectWithoutProperties(_props, ['opentokClientUrl', 'loadingDelegate']);
+        var _this$props = this.props,
+            opentokClientUrl = _this$props.opentokClientUrl,
+            loadingDelegate = _this$props.loadingDelegate,
+            restProps = (0, _objectWithoutProperties2.default)(_this$props, ["opentokClientUrl", "loadingDelegate"]);
 
         if (this.state.scriptLoaded) {
-          return _react2.default.createElement(InnerComponent, restProps);
+          return /*#__PURE__*/_react.default.createElement(InnerComponent, restProps);
         }
 
         return loadingDelegate;
       }
     }]);
-
     return PreloadScript;
   }(_react.Component);
 
-  PreloadScript.displayName = 'preloadScript(' + (0, _reactDisplayName2.default)(InnerComponent) + ')';
+  PreloadScript.displayName = "preloadScript(".concat((0, _reactDisplayName.default)(InnerComponent), ")");
   PreloadScript.propTypes = {
-    opentokClientUrl: _propTypes2.default.string,
-    loadingDelegate: _propTypes2.default.node
+    opentokClientUrl: _propTypes.default.string,
+    loadingDelegate: _propTypes.default.node
   };
   PreloadScript.defaultProps = {
     opentokClientUrl: DEFAULT_SCRIPT_URL,
-    loadingDelegate: _react2.default.createElement('div', null)
+    loadingDelegate: /*#__PURE__*/_react.default.createElement("div", null)
   };
-
   return PreloadScript;
 }

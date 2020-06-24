@@ -4,6 +4,21 @@ import once from 'lodash/once';
 import { omitBy, isNil } from 'lodash/fp';
 import uuid from 'uuid';
 
+const getScreenShareMediaSources = async () => {
+  const screenStream = await OT.getUserMedia({ videoSource: 'screen' });
+  const microphoneStream = await OT.getUserMedia({ videoSource: null });
+  const videoSource = screenStream.getVideoTracks()[0];
+  const audioSource = microphoneStream.getAudioTracks()[0];
+  return { videoSource, audioSource };
+};
+
+const getCameraShareMediaSources = async () => {
+  const stream = await OT.getUserMedia();
+  const videoSource = stream.getVideoTracks()[0];
+  const audioSource = stream.getAudioTracks()[0];
+  return { videoSource, audioSource };
+};
+
 export default class OTPublisher extends Component {
   constructor(props) {
     super(props);
@@ -12,22 +27,24 @@ export default class OTPublisher extends Component {
       publisher: null,
       lastStreamId: '',
       currentRetryAttempt: 0,
-      published: false
+      published: false,
     };
 
     this.maxRetryAttempts = props.maxRetryAttempts || 5;
     this.retryAttemptTimeout = props.retryAttemptTimeout || 1000;
   }
 
-  componentDidMount() {
-    this.createPublisher();
+  async componentDidMount() {
+    await this.createPublisher();
   }
 
-  componentDidUpdate(prevProps) {
-    if (!this.state.published)
-      return;
+  async componentDidUpdate(prevProps) {
+    if (!this.state.published) return;
 
-    const useDefault = (value, defaultValue) => (value === undefined ? defaultValue : value);
+    const useDefault = (value, defaultValue) => {
+      if (value === undefined) return defaultValue;
+      return value;
+    };
 
     const shouldUpdate = (key, defaultValue) => {
       const previous = useDefault(prevProps.properties[key], defaultValue);
@@ -45,9 +62,12 @@ export default class OTPublisher extends Component {
     updatePublisherProperty('publishAudio', true);
     updatePublisherProperty('publishVideo', true);
 
-    if (this.getSession() !== this.session || shouldUpdate('videoSource', undefined)) {
+    if (
+      this.getSession() !== this.session ||
+      shouldUpdate('videoSource', undefined)
+    ) {
       this.destroyPublisher(this.session);
-      this.createPublisher();
+      await this.createPublisher();
     }
   }
 
@@ -73,7 +93,10 @@ export default class OTPublisher extends Component {
     if (this.state.publisher) {
       this.state.publisher.off('streamCreated', this.streamCreatedHandler);
 
-      if (this.props.eventHandlers && typeof this.props.eventHandlers === 'object') {
+      if (
+        this.props.eventHandlers &&
+        typeof this.props.eventHandlers === 'object'
+      ) {
         this.state.publisher.once('destroyed', () => {
           this.state.publisher.off(this.props.eventHandlers);
         });
@@ -89,9 +112,8 @@ export default class OTPublisher extends Component {
   }
 
   publishToSession(publisher) {
-    var session = this.getSession();
-    if (!session || !publisher)
-      return;
+    const session = this.getSession();
+    if (!session || !publisher) return;
 
     const { publisherId } = this;
 
@@ -103,7 +125,11 @@ export default class OTPublisher extends Component {
           return;
         }
 
-        if (err && this.props.retry && this.state.currentRetryAttempt < (this.maxRetryAttempts - 1)) {
+        if (
+          err &&
+          this.props.retry &&
+          this.state.currentRetryAttempt < this.maxRetryAttempts - 1
+        ) {
           // Error during publish function
           this.handleRetryPublisher();
         }
@@ -111,8 +137,14 @@ export default class OTPublisher extends Component {
         if (err) {
           this.errorHandler(err);
         } else {
-          if (this.props.eventHandlers && typeof this.props.eventHandlers === 'object') {
-            const handles = omitBy(isNil)({ audioLevel: this.props.eventHandlers.audioLevel, audioLevelUpdated: this.props.eventHandlers.audioLevelUpdated });
+          if (
+            this.props.eventHandlers &&
+            typeof this.props.eventHandlers === 'object'
+          ) {
+            const handles = omitBy(isNil)({
+              audioLevel: this.props.eventHandlers.audioLevel,
+              audioLevelUpdated: this.props.eventHandlers.audioLevelUpdated,
+            });
             publisher.on(handles);
           }
 
@@ -121,12 +153,14 @@ export default class OTPublisher extends Component {
           publisher.publishAudio(!!this.props.properties.publishAudio);
           publisher.publishVideo(!!this.props.properties.publishVideo);
 
-          if (typeof this.props.onPublish === 'function')
-            this.props.onPublish();
+          if (typeof this.props.onPublish === 'function') this.props.onPublish();
         }
       });
     } catch (e) {
-      if (this.props.retry && this.state.currentRetryAttempt < (this.maxRetryAttempts - 1)) {
+      if (
+        this.props.retry &&
+        this.state.currentRetryAttempt < this.maxRetryAttempts - 1
+      ) {
         // Error during publish function
         this.handleRetryPublisher();
       }
@@ -135,16 +169,19 @@ export default class OTPublisher extends Component {
     }
   }
 
-  createPublisher() {
-    var session = this.session = this.getSession();
+  async createPublisher() {
+    let container;
+
+    const publisherId = uuid();
+
+    const session = this.getSession();
+
+    const properties = this.props.properties || {};
 
     if (!session) {
       this.setState({ publisher: null, lastStreamId: '' });
       return;
     }
-
-    const properties = this.props.properties || {};
-    let container;
 
     if (properties.insertDefaultUI !== false) {
       container = document.createElement('div');
@@ -152,8 +189,9 @@ export default class OTPublisher extends Component {
       this.node.appendChild(container);
     }
 
-    this.publisherId = uuid();
-    const { publisherId } = this;
+    this.session = session;
+
+    this.publisherId = publisherId;
 
     this.errorHandler = once((err) => {
       if (publisherId !== this.publisherId) {
@@ -167,24 +205,46 @@ export default class OTPublisher extends Component {
       }
     });
 
-    const publisher = OT.initPublisher(container, properties, (err) => {
-      if (publisherId !== this.publisherId) {
-        // Either this publisher has been recreated or the
-        // component unmounted so don't invoke any callbacks
-        return;
-      }
+    const getMediaSources =
+      properties.videoSource === 'screen'
+        ? getScreenShareMediaSources
+        : getCameraShareMediaSources;
 
-      if (err) {
-        this.errorHandler(err);
-      } else if (typeof this.props.onInit === 'function') {
-        this.props.onInit();
-      }
-    });
+    const mediaSources = await getMediaSources();
+
+    const publisher = OT.initPublisher(
+      container,
+      {
+        ...properties,
+        ...mediaSources,
+      },
+      (err) => {
+        if (publisherId !== this.publisherId) {
+          // Either this publisher has been recreated or the
+          // component unmounted so don't invoke any callbacks
+          return;
+        }
+
+        if (err) {
+          this.errorHandler(err);
+        } else if (typeof this.props.onInit === 'function') {
+          this.props.onInit();
+        }
+      },
+    );
 
     publisher.on('streamCreated', this.streamCreatedHandler);
 
-    if (this.props.eventHandlers && typeof this.props.eventHandlers === 'object') {
-      const handles = omitBy(isNil)(Object.assign({}, this.props.eventHandlers, { audioLevel: null, audioLevelUpdated: null }));
+    if (
+      this.props.eventHandlers &&
+      typeof this.props.eventHandlers === 'object'
+    ) {
+      const handles = omitBy(isNil)(
+        Object.assign({}, this.props.eventHandlers, {
+          audioLevel: null,
+          audioLevelUpdated: null,
+        }),
+      );
       publisher.on(handles);
     }
 
@@ -219,7 +279,15 @@ export default class OTPublisher extends Component {
 
   render() {
     const { className, style } = this.props;
-    return <div className={className} style={style} ref={(node) => { this.node = node; }} />;
+    return (
+      <div
+        className={className}
+        style={style}
+        ref={(node) => {
+          this.node = node;
+        }}
+      />
+    );
   }
 }
 
@@ -234,7 +302,7 @@ OTPublisher.propTypes = {
     unpublish: PropTypes.func,
   }),
   className: PropTypes.string,
-  style: PropTypes.oneOfType([ PropTypes.object, PropTypes.array ]), // eslint-disable-line react/forbid-prop-types
+  style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]), // eslint-disable-line react/forbid-prop-types
   properties: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   eventHandlers: PropTypes.objectOf(PropTypes.func),
   retry: PropTypes.bool,

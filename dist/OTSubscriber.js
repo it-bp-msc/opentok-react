@@ -1,41 +1,44 @@
-'use strict';
+"use strict";
+
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = void 0;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _react = require('react');
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 
-var _react2 = _interopRequireDefault(_react);
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
 
-var _propTypes = require('prop-types');
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
-var _propTypes2 = _interopRequireDefault(_propTypes);
+var _react = _interopRequireWildcard(require("react"));
 
-var _uuid = require('uuid');
+var _propTypes = _interopRequireDefault(require("prop-types"));
 
-var _uuid2 = _interopRequireDefault(_uuid);
+var _uuid = _interopRequireDefault(require("uuid"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2.default)(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2.default)(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2.default)(this, result); }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+var OTSubscriber = /*#__PURE__*/function (_Component) {
+  (0, _inherits2.default)(OTSubscriber, _Component);
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var OTSubscriber = function (_Component) {
-  _inherits(OTSubscriber, _Component);
+  var _super = _createSuper(OTSubscriber);
 
   function OTSubscriber(props, context) {
-    _classCallCheck(this, OTSubscriber);
+    var _this;
 
-    var _this = _possibleConstructorReturn(this, (OTSubscriber.__proto__ || Object.getPrototypeOf(OTSubscriber)).call(this, props));
-
+    (0, _classCallCheck2.default)(this, OTSubscriber);
+    _this = _super.call(this, props);
     _this.state = {
       subscriber: null,
       currentRetryAttempt: 0
@@ -45,13 +48,13 @@ var OTSubscriber = function (_Component) {
     return _this;
   }
 
-  _createClass(OTSubscriber, [{
-    key: 'componentDidMount',
+  (0, _createClass2.default)(OTSubscriber, [{
+    key: "componentDidMount",
     value: function componentDidMount() {
       this.createSubscriber();
     }
   }, {
-    key: 'componentDidUpdate',
+    key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps) {
       var _this2 = this;
 
@@ -69,6 +72,7 @@ var OTSubscriber = function (_Component) {
 
           if (methodName === 'subscribeToAudio' && current) {
             var audioVolume = _this2.props.properties.audioVolume;
+
             _this2.state.subscriber.setAudioVolume(audioVolume != null ? audioVolume : 100);
           }
         }
@@ -84,27 +88,27 @@ var OTSubscriber = function (_Component) {
       }
     }
   }, {
-    key: 'componentWillUnmount',
+    key: "componentWillUnmount",
     value: function componentWillUnmount() {
       this.destroySubscriber(this.session);
     }
   }, {
-    key: 'getSession',
+    key: "getSession",
     value: function getSession() {
       return this.props.session || this.context.session || null;
     }
   }, {
-    key: 'getStream',
+    key: "getStream",
     value: function getStream() {
       return this.props.stream || this.context.stream || null;
     }
   }, {
-    key: 'getSubscriber',
+    key: "getSubscriber",
     value: function getSubscriber() {
       return this.state.subscriber;
     }
   }, {
-    key: 'createSubscriber',
+    key: "createSubscriber",
     value: function createSubscriber() {
       var _this3 = this;
 
@@ -112,17 +116,17 @@ var OTSubscriber = function (_Component) {
           stream = this.stream = this.getStream();
 
       if (!session || !stream) {
-        this.setState({ subscriber: null });
+        this.setState({
+          subscriber: null
+        });
         return;
       }
 
       var container = document.createElement('div');
       container.setAttribute('class', 'OTSubscriberContainer');
       this.node.appendChild(container);
-
-      this.subscriberId = (0, _uuid2.default)();
+      this.subscriberId = (0, _uuid.default)();
       var subscriberId = this.subscriberId;
-
 
       try {
         var subscriber = session.subscribe(stream, container, this.props.properties, function (err) {
@@ -140,14 +144,17 @@ var OTSubscriber = function (_Component) {
           if (err && typeof _this3.props.onError === 'function') {
             _this3.props.onError(err);
           } else if (!err && typeof _this3.props.onSubscribe === 'function') {
-            _this3.setState({ currentRetryAttempt: 0 });
+            _this3.setState({
+              currentRetryAttempt: 0
+            });
+
             _this3.props.onSubscribe();
           }
         });
-
-        if (this.props.eventHandlers && _typeof(this.props.eventHandlers) === 'object') subscriber.on(this.props.eventHandlers);
-
-        this.setState({ subscriber: subscriber });
+        if (this.props.eventHandlers && typeof this.props.eventHandlers === 'object') subscriber.on(this.props.eventHandlers);
+        this.setState({
+          subscriber
+        });
       } catch (e) {
         if (this.props.retry && this.state.currentRetryAttempt < this.maxRetryAttempts - 1) {
           // Error during subscribe function
@@ -158,7 +165,7 @@ var OTSubscriber = function (_Component) {
       }
     }
   }, {
-    key: 'handleRetrySubscriber',
+    key: "handleRetrySubscriber",
     value: function handleRetrySubscriber() {
       var _this4 = this;
 
@@ -169,18 +176,19 @@ var OTSubscriber = function (_Component) {
             subscriber: null
           };
         });
+
         _this4.createSubscriber();
       }, this.retryAttemptTimeout);
     }
   }, {
-    key: 'destroySubscriber',
+    key: "destroySubscriber",
     value: function destroySubscriber(session) {
       var _this5 = this;
 
       delete this.subscriberId;
 
       if (this.state.subscriber) {
-        if (this.props.eventHandlers && _typeof(this.props.eventHandlers) === 'object') {
+        if (this.props.eventHandlers && typeof this.props.eventHandlers === 'object') {
           this.state.subscriber.once('destroyed', function () {
             _this5.state.subscriber.off(_this5.props.eventHandlers);
           });
@@ -192,45 +200,46 @@ var OTSubscriber = function (_Component) {
       }
     }
   }, {
-    key: 'render',
+    key: "render",
     value: function render() {
       var _this6 = this;
 
-      var _props = this.props,
-          className = _props.className,
-          style = _props.style;
-
-      return _react2.default.createElement('div', { className: className, style: style, ref: function ref(node) {
+      var _this$props = this.props,
+          className = _this$props.className,
+          style = _this$props.style;
+      return /*#__PURE__*/_react.default.createElement("div", {
+        className: className,
+        style: style,
+        ref: function ref(node) {
           _this6.node = node;
-        } });
+        }
+      });
     }
   }]);
-
   return OTSubscriber;
 }(_react.Component);
 
 exports.default = OTSubscriber;
-
-
 OTSubscriber.propTypes = {
-  stream: _propTypes2.default.shape({
-    streamId: _propTypes2.default.string
+  stream: _propTypes.default.shape({
+    streamId: _propTypes.default.string
   }),
-  session: _propTypes2.default.shape({
-    subscribe: _propTypes2.default.func,
-    unsubscribe: _propTypes2.default.func
+  session: _propTypes.default.shape({
+    subscribe: _propTypes.default.func,
+    unsubscribe: _propTypes.default.func
   }),
-  className: _propTypes2.default.string,
-  style: _propTypes2.default.oneOfType([_propTypes2.default.object, _propTypes2.default.array]), // eslint-disable-line react/forbid-prop-types
-  properties: _propTypes2.default.object, // eslint-disable-line react/forbid-prop-types
-  retry: _propTypes2.default.bool,
-  maxRetryAttempts: _propTypes2.default.number,
-  retryAttemptTimeout: _propTypes2.default.number,
-  eventHandlers: _propTypes2.default.objectOf(_propTypes2.default.func),
-  onSubscribe: _propTypes2.default.func,
-  onError: _propTypes2.default.func
+  className: _propTypes.default.string,
+  style: _propTypes.default.oneOfType([_propTypes.default.object, _propTypes.default.array]),
+  // eslint-disable-line react/forbid-prop-types
+  properties: _propTypes.default.object,
+  // eslint-disable-line react/forbid-prop-types
+  retry: _propTypes.default.bool,
+  maxRetryAttempts: _propTypes.default.number,
+  retryAttemptTimeout: _propTypes.default.number,
+  eventHandlers: _propTypes.default.objectOf(_propTypes.default.func),
+  onSubscribe: _propTypes.default.func,
+  onError: _propTypes.default.func
 };
-
 OTSubscriber.defaultProps = {
   stream: null,
   session: null,
@@ -244,13 +253,12 @@ OTSubscriber.defaultProps = {
   onSubscribe: null,
   onError: null
 };
-
 OTSubscriber.contextTypes = {
-  stream: _propTypes2.default.shape({
-    streamId: _propTypes2.default.string
+  stream: _propTypes.default.shape({
+    streamId: _propTypes.default.string
   }),
-  session: _propTypes2.default.shape({
-    subscribe: _propTypes2.default.func,
-    unsubscribe: _propTypes2.default.func
+  session: _propTypes.default.shape({
+    subscribe: _propTypes.default.func,
+    unsubscribe: _propTypes.default.func
   })
 };

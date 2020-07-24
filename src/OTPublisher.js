@@ -15,7 +15,7 @@ const getScreenShareMediaSources = async () => {
     const { desktopCapturer } = RD;
     const sources = await desktopCapturer.getSources({ types: ['screen'] });
     const source = sources[0];
-    if (source && source.name === 'Electron') {
+    if (source) {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           mandatory: {

@@ -70,7 +70,7 @@ var getScreenShareMediaSources = /*#__PURE__*/function () {
             sources = _context.sent;
             source = sources[0];
 
-            if (!(source && source.name === 'Electron')) {
+            if (!source) {
               _context.next = 15;
               break;
             }

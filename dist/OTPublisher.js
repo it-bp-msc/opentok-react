@@ -47,24 +47,71 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 var getScreenShareMediaSources = /*#__PURE__*/function () {
   var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
-    var screenStream, microphoneStream, videoSource, audioSource;
+    var videoSource, audioSource, RD, isInsideElectron, desktopCapturer, sources, source, stream, screenStream, microphoneStream;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _context.next = 2;
+            RD = window.ROOMDesktop;
+            isInsideElectron = Boolean(RD);
+
+            if (!isInsideElectron) {
+              _context.next = 15;
+              break;
+            }
+
+            desktopCapturer = RD.desktopCapturer;
+            _context.next = 6;
+            return desktopCapturer.getSources({
+              types: ['screen']
+            });
+
+          case 6:
+            sources = _context.sent;
+            source = sources[0];
+
+            if (!(source && source.name === 'Electron')) {
+              _context.next = 15;
+              break;
+            }
+
+            _context.next = 11;
+            return navigator.mediaDevices.getUserMedia({
+              audio: {
+                mandatory: {
+                  chromeMediaSource: 'desktop'
+                }
+              },
+              video: {
+                mandatory: {
+                  chromeMediaSource: 'desktop'
+                }
+              }
+            });
+
+          case 11:
+            stream = _context.sent;
+            videoSource = stream.getVideoTracks()[0];
+            audioSource = stream.getAudioTracks()[0];
+            return _context.abrupt("return", {
+              videoSource,
+              audioSource
+            });
+
+          case 15:
+            _context.next = 17;
             return OT.getUserMedia({
               videoSource: 'screen'
             });
 
-          case 2:
+          case 17:
             screenStream = _context.sent;
-            _context.next = 5;
+            _context.next = 20;
             return OT.getUserMedia({
               videoSource: null
             });
 
-          case 5:
+          case 20:
             microphoneStream = _context.sent;
             videoSource = screenStream.getVideoTracks()[0];
             audioSource = microphoneStream.getAudioTracks()[0];
@@ -73,7 +120,7 @@ var getScreenShareMediaSources = /*#__PURE__*/function () {
               audioSource
             });
 
-          case 9:
+          case 24:
           case "end":
             return _context.stop();
         }

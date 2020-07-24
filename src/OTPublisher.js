@@ -5,42 +5,33 @@ import { omitBy, isNil } from 'lodash/fp';
 import uuid from 'uuid';
 
 const getScreenShareMediaSources = async () => {
-  let videoSource,
-      audioSource;
+  let videoSource, audioSource, screenStream, microphoneStream;
 
   const RD = window.ROOMDesktop;
   const isInsideElectron = Boolean(RD);
+
+  microphoneStream = await OT.getUserMedia({ videoSource: null });
+  audioSource = microphoneStream.getAudioTracks()[0];
 
   if (isInsideElectron) {
     const { desktopCapturer } = RD;
     const sources = await desktopCapturer.getSources({ types: ['screen'] });
     const source = sources[0];
     if (source) {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          mandatory: {
-            chromeMediaSource: 'desktop',
-          },
-        },
+      screenStream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
         video: {
           mandatory: {
             chromeMediaSource: 'desktop',
           },
         },
       });
-
-      videoSource = stream.getVideoTracks()[0];
-      audioSource = stream.getAudioTracks()[0];
-
-      return { videoSource, audioSource }
     }
+  } else {
+    screenStream = await OT.getUserMedia({ videoSource: 'screen' });
   }
 
-
-  const screenStream = await OT.getUserMedia({ videoSource: 'screen' });
-  const microphoneStream = await OT.getUserMedia({ videoSource: null });
   videoSource = screenStream.getVideoTracks()[0];
-  audioSource = microphoneStream.getAudioTracks()[0];
   return { videoSource, audioSource };
 };
 

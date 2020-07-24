@@ -47,41 +47,45 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 var getScreenShareMediaSources = /*#__PURE__*/function () {
   var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
-    var videoSource, audioSource, RD, isInsideElectron, desktopCapturer, sources, source, stream, screenStream, microphoneStream;
+    var videoSource, audioSource, screenStream, microphoneStream, RD, isInsideElectron, desktopCapturer, sources, source;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             RD = window.ROOMDesktop;
             isInsideElectron = Boolean(RD);
+            _context.next = 4;
+            return OT.getUserMedia({
+              videoSource: null
+            });
+
+          case 4:
+            microphoneStream = _context.sent;
+            audioSource = microphoneStream.getAudioTracks()[0];
 
             if (!isInsideElectron) {
-              _context.next = 15;
+              _context.next = 18;
               break;
             }
 
             desktopCapturer = RD.desktopCapturer;
-            _context.next = 6;
+            _context.next = 10;
             return desktopCapturer.getSources({
               types: ['screen']
             });
 
-          case 6:
+          case 10:
             sources = _context.sent;
             source = sources[0];
 
             if (!source) {
-              _context.next = 15;
+              _context.next = 16;
               break;
             }
 
-            _context.next = 11;
+            _context.next = 15;
             return navigator.mediaDevices.getUserMedia({
-              audio: {
-                mandatory: {
-                  chromeMediaSource: 'desktop'
-                }
-              },
+              audio: false,
               video: {
                 mandatory: {
                   chromeMediaSource: 'desktop'
@@ -89,38 +93,30 @@ var getScreenShareMediaSources = /*#__PURE__*/function () {
               }
             });
 
-          case 11:
-            stream = _context.sent;
-            videoSource = stream.getVideoTracks()[0];
-            audioSource = stream.getAudioTracks()[0];
-            return _context.abrupt("return", {
-              videoSource,
-              audioSource
-            });
-
           case 15:
-            _context.next = 17;
+            screenStream = _context.sent;
+
+          case 16:
+            _context.next = 21;
+            break;
+
+          case 18:
+            _context.next = 20;
             return OT.getUserMedia({
               videoSource: 'screen'
             });
 
-          case 17:
-            screenStream = _context.sent;
-            _context.next = 20;
-            return OT.getUserMedia({
-              videoSource: null
-            });
-
           case 20:
-            microphoneStream = _context.sent;
+            screenStream = _context.sent;
+
+          case 21:
             videoSource = screenStream.getVideoTracks()[0];
-            audioSource = microphoneStream.getAudioTracks()[0];
             return _context.abrupt("return", {
               videoSource,
               audioSource
             });
 
-          case 24:
+          case 23:
           case "end":
             return _context.stop();
         }

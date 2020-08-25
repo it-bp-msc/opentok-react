@@ -61,7 +61,7 @@ var getScreenShareMediaSources = /*#__PURE__*/function () {
 
           case 4:
             microphoneStream = _context.sent;
-            audioSource = microphoneStream.getAudioTracks()[0];
+            audioSource = microphoneStream.getAudioTracks()[0] || null;
 
             if (!isInsideElectron) {
               _context.next = 18;
@@ -110,7 +110,7 @@ var getScreenShareMediaSources = /*#__PURE__*/function () {
             screenStream = _context.sent;
 
           case 21:
-            videoSource = screenStream.getVideoTracks()[0];
+            videoSource = screenStream.getVideoTracks()[0] || null;
             return _context.abrupt("return", {
               videoSource,
               audioSource
@@ -141,8 +141,8 @@ var getCameraShareMediaSources = /*#__PURE__*/function () {
 
           case 2:
             stream = _context2.sent;
-            videoSource = stream.getVideoTracks()[0];
-            audioSource = stream.getAudioTracks()[0];
+            videoSource = stream.getVideoTracks()[0] || null;
+            audioSource = stream.getAudioTracks()[0] || null;
             return _context2.abrupt("return", {
               videoSource,
               audioSource

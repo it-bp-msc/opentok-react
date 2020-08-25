@@ -11,7 +11,7 @@ const getScreenShareMediaSources = async () => {
   const isInsideElectron = Boolean(RD);
 
   microphoneStream = await OT.getUserMedia({ videoSource: null });
-  audioSource = microphoneStream.getAudioTracks()[0];
+  audioSource = microphoneStream.getAudioTracks()[0] || null;
 
   if (isInsideElectron) {
     const { desktopCapturer } = RD;
@@ -31,14 +31,14 @@ const getScreenShareMediaSources = async () => {
     screenStream = await OT.getUserMedia({ videoSource: 'screen' });
   }
 
-  videoSource = screenStream.getVideoTracks()[0];
+  videoSource = screenStream.getVideoTracks()[0] || null;
   return { videoSource, audioSource };
 };
 
 const getCameraShareMediaSources = async () => {
   const stream = await OT.getUserMedia();
-  const videoSource = stream.getVideoTracks()[0];
-  const audioSource = stream.getAudioTracks()[0];
+  const videoSource = stream.getVideoTracks()[0] || null;
+  const audioSource = stream.getAudioTracks()[0] || null;
   return { videoSource, audioSource };
 };
 

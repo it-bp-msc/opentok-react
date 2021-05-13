@@ -1,46 +1,8 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import once from 'lodash/once';
-import { omitBy, isNil } from 'lodash/fp';
-import uuid from 'uuid';
-
-const getScreenShareMediaSources = async () => {
-  let videoSource, audioSource, screenStream, microphoneStream;
-
-  const RD = window.ROOMDesktop;
-  const isInsideElectron = Boolean(RD);
-
-  microphoneStream = await OT.getUserMedia({ videoSource: null });
-  audioSource = microphoneStream.getAudioTracks()[0] || null;
-
-  if (isInsideElectron) {
-    const { desktopCapturer } = RD;
-    const sources = await desktopCapturer.getSources({ types: ['screen'] });
-    const source = sources[0];
-    if (source) {
-      screenStream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          mandatory: {
-            chromeMediaSource: 'desktop',
-          },
-        },
-      });
-    }
-  } else {
-    screenStream = await OT.getUserMedia({ videoSource: 'screen' });
-  }
-
-  videoSource = screenStream.getVideoTracks()[0] || null;
-  return { videoSource, audioSource };
-};
-
-const getCameraShareMediaSources = async () => {
-  const stream = await OT.getUserMedia();
-  const videoSource = stream.getVideoTracks()[0] || null;
-  const audioSource = stream.getAudioTracks()[0] || null;
-  return { videoSource, audioSource };
-};
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import once from "lodash/once";
+import { omitBy, isNil } from "lodash/fp";
+import uuid from "uuid";
 
 export default class OTPublisher extends Component {
   constructor(props) {
@@ -48,7 +10,7 @@ export default class OTPublisher extends Component {
 
     this.state = {
       publisher: null,
-      lastStreamId: '',
+      lastStreamId: "",
       currentRetryAttempt: 0,
       published: false,
     };
@@ -56,6 +18,53 @@ export default class OTPublisher extends Component {
     this.maxRetryAttempts = props.maxRetryAttempts || 5;
     this.retryAttemptTimeout = props.retryAttemptTimeout || 1000;
   }
+
+  getScreenShareMediaSources = async () => {
+    let videoSource, audioSource, screenStream, microphoneStream;
+
+    const RD = window.ROOMDesktop;
+    const isInsideElectron = Boolean(RD);
+
+    microphoneStream = await OT.getUserMedia({ videoSource: null });
+    audioSource = microphoneStream.getAudioTracks()[0] || null;
+
+    if (isInsideElectron) {
+      const { desktopCapturer } = RD;
+      const sources = await desktopCapturer.getSources({ types: ["screen"] });
+      const source = sources[0];
+      if (source) {
+        screenStream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            mandatory: {
+              chromeMediaSource: "desktop",
+            },
+          },
+        });
+      }
+    } else {
+      screenStream = await OT.getUserMedia({ videoSource: "screen" }).catch(
+        async (err) => {
+          this.props.onHandleScreenShareRejection();
+          this.destroyPublisher(this.session);
+          await this.createPublisher();
+          return;
+        }
+      );
+    }
+
+    if (!screenStream) return;
+
+    videoSource = screenStream.getVideoTracks()[0] || null;
+    return { videoSource, audioSource };
+  };
+
+  getCameraShareMediaSources = async () => {
+    const stream = await OT.getUserMedia();
+    const videoSource = stream.getVideoTracks()[0] || null;
+    const audioSource = stream.getAudioTracks()[0] || null;
+    return { videoSource, audioSource };
+  };
 
   async componentDidMount() {
     await this.createPublisher();
@@ -82,12 +91,12 @@ export default class OTPublisher extends Component {
       }
     };
 
-    updatePublisherProperty('publishAudio', true);
-    updatePublisherProperty('publishVideo', true);
+    updatePublisherProperty("publishAudio", true);
+    updatePublisherProperty("publishVideo", true);
 
     if (
       this.getSession() !== this.session ||
-      shouldUpdate('videoSource', undefined)
+      shouldUpdate("videoSource", undefined)
     ) {
       this.destroyPublisher(this.session);
       await this.createPublisher();
@@ -96,7 +105,7 @@ export default class OTPublisher extends Component {
 
   componentWillUnmount() {
     if (this.session) {
-      this.session.off('sessionConnected', this.sessionConnectedHandler);
+      this.session.off("sessionConnected", this.sessionConnectedHandler);
     }
 
     this.destroyPublisher(this.session);
@@ -114,13 +123,13 @@ export default class OTPublisher extends Component {
     delete this.publisherId;
 
     if (this.state.publisher) {
-      this.state.publisher.off('streamCreated', this.streamCreatedHandler);
+      this.state.publisher.off("streamCreated", this.streamCreatedHandler);
 
       if (
         this.props.eventHandlers &&
-        typeof this.props.eventHandlers === 'object'
+        typeof this.props.eventHandlers === "object"
       ) {
-        this.state.publisher.once('destroyed', () => {
+        this.state.publisher.once("destroyed", () => {
           this.state.publisher.off(this.props.eventHandlers);
         });
       }
@@ -162,7 +171,7 @@ export default class OTPublisher extends Component {
         } else {
           if (
             this.props.eventHandlers &&
-            typeof this.props.eventHandlers === 'object'
+            typeof this.props.eventHandlers === "object"
           ) {
             const handles = omitBy(isNil)({
               audioLevel: this.props.eventHandlers.audioLevel,
@@ -176,7 +185,8 @@ export default class OTPublisher extends Component {
           publisher.publishAudio(!!this.props.properties.publishAudio);
           publisher.publishVideo(!!this.props.properties.publishVideo);
 
-          if (typeof this.props.onPublish === 'function') this.props.onPublish();
+          if (typeof this.props.onPublish === "function")
+            this.props.onPublish();
         }
       });
     } catch (e) {
@@ -202,13 +212,13 @@ export default class OTPublisher extends Component {
     const properties = this.props.properties || {};
 
     if (!session) {
-      this.setState({ publisher: null, lastStreamId: '' });
+      this.setState({ publisher: null, lastStreamId: "" });
       return;
     }
 
     if (properties.insertDefaultUI !== false) {
-      container = document.createElement('div');
-      container.setAttribute('class', 'OTPublisherContainer');
+      container = document.createElement("div");
+      container.setAttribute("class", "OTPublisherContainer");
       this.node.appendChild(container);
     }
 
@@ -223,17 +233,19 @@ export default class OTPublisher extends Component {
         return;
       }
 
-      if (typeof this.props.onError === 'function') {
+      if (typeof this.props.onError === "function") {
         this.props.onError(err);
       }
     });
 
     const getMediaSources =
-      properties.videoSource === 'screen'
-        ? getScreenShareMediaSources
-        : getCameraShareMediaSources;
+      properties.videoSource === "screen"
+        ? this.getScreenShareMediaSources
+        : this.getCameraShareMediaSources;
 
     const mediaSources = await getMediaSources();
+
+    if (!mediaSources) return;
 
     const publisher = OT.initPublisher(
       container,
@@ -250,41 +262,41 @@ export default class OTPublisher extends Component {
 
         if (err) {
           this.errorHandler(err);
-        } else if (typeof this.props.onInit === 'function') {
+        } else if (typeof this.props.onInit === "function") {
           this.props.onInit();
         }
-      },
+      }
     );
 
-    publisher.on('streamCreated', this.streamCreatedHandler);
+    publisher.on("streamCreated", this.streamCreatedHandler);
 
     if (
       this.props.eventHandlers &&
-      typeof this.props.eventHandlers === 'object'
+      typeof this.props.eventHandlers === "object"
     ) {
       const handles = omitBy(isNil)(
         Object.assign({}, this.props.eventHandlers, {
           audioLevel: null,
           audioLevelUpdated: null,
-        }),
+        })
       );
       publisher.on(handles);
     }
 
-    this.setState({ publisher, lastStreamId: '' });
+    this.setState({ publisher, lastStreamId: "" });
 
     if (session) {
       if (session.connection) {
         this.publishToSession(publisher);
       } else {
-        session.once('sessionConnected', this.sessionConnectedHandler);
+        session.once("sessionConnected", this.sessionConnectedHandler);
       }
     }
   }
 
   handleRetryPublisher() {
     setTimeout(() => {
-      this.setState(state => ({
+      this.setState((state) => ({
         currentRetryAttempt: state.currentRetryAttempt + 1,
       }));
 
@@ -294,11 +306,11 @@ export default class OTPublisher extends Component {
 
   sessionConnectedHandler = () => {
     this.publishToSession(this.state.publisher);
-  }
+  };
 
   streamCreatedHandler = (event) => {
     this.setState({ lastStreamId: event.stream.id });
-  }
+  };
 
   render() {
     const { className, style } = this.props;
@@ -338,7 +350,7 @@ OTPublisher.propTypes = {
 
 OTPublisher.defaultProps = {
   session: null,
-  className: '',
+  className: "",
   style: {},
   properties: {},
   eventHandlers: null,

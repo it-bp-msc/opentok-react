@@ -9,6 +9,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
@@ -22,10 +26,6 @@ var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime
 var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
-
-var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
-
-var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -45,122 +45,6 @@ function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflec
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
-var getScreenShareMediaSources = /*#__PURE__*/function () {
-  var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
-    var videoSource, audioSource, screenStream, microphoneStream, RD, isInsideElectron, desktopCapturer, sources, source;
-    return _regenerator.default.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            RD = window.ROOMDesktop;
-            isInsideElectron = Boolean(RD);
-            _context.next = 4;
-            return OT.getUserMedia({
-              videoSource: null
-            });
-
-          case 4:
-            microphoneStream = _context.sent;
-            audioSource = microphoneStream.getAudioTracks()[0] || null;
-
-            if (!isInsideElectron) {
-              _context.next = 18;
-              break;
-            }
-
-            desktopCapturer = RD.desktopCapturer;
-            _context.next = 10;
-            return desktopCapturer.getSources({
-              types: ['screen']
-            });
-
-          case 10:
-            sources = _context.sent;
-            source = sources[0];
-
-            if (!source) {
-              _context.next = 16;
-              break;
-            }
-
-            _context.next = 15;
-            return navigator.mediaDevices.getUserMedia({
-              audio: false,
-              video: {
-                mandatory: {
-                  chromeMediaSource: 'desktop'
-                }
-              }
-            });
-
-          case 15:
-            screenStream = _context.sent;
-
-          case 16:
-            _context.next = 21;
-            break;
-
-          case 18:
-            _context.next = 20;
-            return OT.getUserMedia({
-              videoSource: 'screen'
-            });
-
-          case 20:
-            screenStream = _context.sent;
-
-          case 21:
-            videoSource = screenStream.getVideoTracks()[0] || null;
-            return _context.abrupt("return", {
-              videoSource,
-              audioSource
-            });
-
-          case 23:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee);
-  }));
-
-  return function getScreenShareMediaSources() {
-    return _ref.apply(this, arguments);
-  };
-}();
-
-var getCameraShareMediaSources = /*#__PURE__*/function () {
-  var _ref2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
-    var stream, videoSource, audioSource;
-    return _regenerator.default.wrap(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            _context2.next = 2;
-            return OT.getUserMedia();
-
-          case 2:
-            stream = _context2.sent;
-            videoSource = stream.getVideoTracks()[0] || null;
-            audioSource = stream.getAudioTracks()[0] || null;
-            return _context2.abrupt("return", {
-              videoSource,
-              audioSource
-            });
-
-          case 6:
-          case "end":
-            return _context2.stop();
-        }
-      }
-    }, _callee2);
-  }));
-
-  return function getCameraShareMediaSources() {
-    return _ref2.apply(this, arguments);
-  };
-}();
-
 var OTPublisher = /*#__PURE__*/function (_Component) {
   (0, _inherits2.default)(OTPublisher, _Component);
 
@@ -171,6 +55,143 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
 
     (0, _classCallCheck2.default)(this, OTPublisher);
     _this = _super.call(this, props);
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "getScreenShareMediaSources", /*#__PURE__*/(0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
+      var videoSource, audioSource, screenStream, microphoneStream, RD, isInsideElectron, desktopCapturer, sources, source;
+      return _regenerator.default.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              RD = window.ROOMDesktop;
+              isInsideElectron = Boolean(RD);
+              _context2.next = 4;
+              return OT.getUserMedia({
+                videoSource: null
+              });
+
+            case 4:
+              microphoneStream = _context2.sent;
+              audioSource = microphoneStream.getAudioTracks()[0] || null;
+
+              if (!isInsideElectron) {
+                _context2.next = 18;
+                break;
+              }
+
+              desktopCapturer = RD.desktopCapturer;
+              _context2.next = 10;
+              return desktopCapturer.getSources({
+                types: ["screen"]
+              });
+
+            case 10:
+              sources = _context2.sent;
+              source = sources[0];
+
+              if (!source) {
+                _context2.next = 16;
+                break;
+              }
+
+              _context2.next = 15;
+              return navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: {
+                  mandatory: {
+                    chromeMediaSource: "desktop"
+                  }
+                }
+              });
+
+            case 15:
+              screenStream = _context2.sent;
+
+            case 16:
+              _context2.next = 21;
+              break;
+
+            case 18:
+              _context2.next = 20;
+              return OT.getUserMedia({
+                videoSource: "screen"
+              }).catch( /*#__PURE__*/function () {
+                var _ref2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(err) {
+                  return _regenerator.default.wrap(function _callee$(_context) {
+                    while (1) {
+                      switch (_context.prev = _context.next) {
+                        case 0:
+                          _this.props.onHandleScreenShareRejection();
+
+                          _this.destroyPublisher(_this.session);
+
+                          _context.next = 4;
+                          return _this.createPublisher();
+
+                        case 4:
+                          return _context.abrupt("return");
+
+                        case 5:
+                        case "end":
+                          return _context.stop();
+                      }
+                    }
+                  }, _callee);
+                }));
+
+                return function (_x) {
+                  return _ref2.apply(this, arguments);
+                };
+              }());
+
+            case 20:
+              screenStream = _context2.sent;
+
+            case 21:
+              if (screenStream) {
+                _context2.next = 23;
+                break;
+              }
+
+              return _context2.abrupt("return");
+
+            case 23:
+              videoSource = screenStream.getVideoTracks()[0] || null;
+              return _context2.abrupt("return", {
+                videoSource,
+                audioSource
+              });
+
+            case 25:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2);
+    })));
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "getCameraShareMediaSources", /*#__PURE__*/(0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
+      var stream, videoSource, audioSource;
+      return _regenerator.default.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              _context3.next = 2;
+              return OT.getUserMedia();
+
+            case 2:
+              stream = _context3.sent;
+              videoSource = stream.getVideoTracks()[0] || null;
+              audioSource = stream.getAudioTracks()[0] || null;
+              return _context3.abrupt("return", {
+                videoSource,
+                audioSource
+              });
+
+            case 6:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3);
+    })));
     (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "sessionConnectedHandler", function () {
       _this.publishToSession(_this.state.publisher);
     });
@@ -181,7 +202,7 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
     });
     _this.state = {
       publisher: null,
-      lastStreamId: '',
+      lastStreamId: "",
       currentRetryAttempt: 0,
       published: false
     };
@@ -193,20 +214,20 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
   (0, _createClass2.default)(OTPublisher, [{
     key: "componentDidMount",
     value: function () {
-      var _componentDidMount = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
-        return _regenerator.default.wrap(function _callee3$(_context3) {
+      var _componentDidMount = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4() {
+        return _regenerator.default.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
-                _context3.next = 2;
+                _context4.next = 2;
                 return this.createPublisher();
 
               case 2:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3, this);
+        }, _callee4, this);
       }));
 
       function componentDidMount() {
@@ -218,20 +239,20 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
   }, {
     key: "componentDidUpdate",
     value: function () {
-      var _componentDidUpdate = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4(prevProps) {
+      var _componentDidUpdate = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee5(prevProps) {
         var _this2 = this;
 
         var useDefault, shouldUpdate, updatePublisherProperty;
-        return _regenerator.default.wrap(function _callee4$(_context4) {
+        return _regenerator.default.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
                 if (this.state.published) {
-                  _context4.next = 2;
+                  _context5.next = 2;
                   break;
                 }
 
-                return _context4.abrupt("return");
+                return _context5.abrupt("return");
 
               case 2:
                 useDefault = function useDefault(value, defaultValue) {
@@ -253,27 +274,27 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
                   }
                 };
 
-                updatePublisherProperty('publishAudio', true);
-                updatePublisherProperty('publishVideo', true);
+                updatePublisherProperty("publishAudio", true);
+                updatePublisherProperty("publishVideo", true);
 
-                if (!(this.getSession() !== this.session || shouldUpdate('videoSource', undefined))) {
-                  _context4.next = 11;
+                if (!(this.getSession() !== this.session || shouldUpdate("videoSource", undefined))) {
+                  _context5.next = 11;
                   break;
                 }
 
                 this.destroyPublisher(this.session);
-                _context4.next = 11;
+                _context5.next = 11;
                 return this.createPublisher();
 
               case 11:
               case "end":
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4, this);
+        }, _callee5, this);
       }));
 
-      function componentDidUpdate(_x) {
+      function componentDidUpdate(_x2) {
         return _componentDidUpdate.apply(this, arguments);
       }
 
@@ -283,7 +304,7 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
       if (this.session) {
-        this.session.off('sessionConnected', this.sessionConnectedHandler);
+        this.session.off("sessionConnected", this.sessionConnectedHandler);
       }
 
       this.destroyPublisher(this.session);
@@ -306,10 +327,10 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
       delete this.publisherId;
 
       if (this.state.publisher) {
-        this.state.publisher.off('streamCreated', this.streamCreatedHandler);
+        this.state.publisher.off("streamCreated", this.streamCreatedHandler);
 
-        if (this.props.eventHandlers && typeof this.props.eventHandlers === 'object') {
-          this.state.publisher.once('destroyed', function () {
+        if (this.props.eventHandlers && typeof this.props.eventHandlers === "object") {
+          this.state.publisher.once("destroyed", function () {
             _this3.state.publisher.off(_this3.props.eventHandlers);
           });
         }
@@ -350,7 +371,7 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
           if (err) {
             _this4.errorHandler(err);
           } else {
-            if (_this4.props.eventHandlers && typeof _this4.props.eventHandlers === 'object') {
+            if (_this4.props.eventHandlers && typeof _this4.props.eventHandlers === "object") {
               var handles = (0, _fp.omitBy)(_fp.isNil)({
                 audioLevel: _this4.props.eventHandlers.audioLevel,
                 audioLevelUpdated: _this4.props.eventHandlers.audioLevelUpdated
@@ -365,7 +386,7 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
 
             publisher.publishAudio(!!_this4.props.properties.publishAudio);
             publisher.publishVideo(!!_this4.props.properties.publishVideo);
-            if (typeof _this4.props.onPublish === 'function') _this4.props.onPublish();
+            if (typeof _this4.props.onPublish === "function") _this4.props.onPublish();
           }
         });
       } catch (e) {
@@ -380,33 +401,33 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
   }, {
     key: "createPublisher",
     value: function () {
-      var _createPublisher = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee5() {
+      var _createPublisher = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee6() {
         var _this5 = this;
 
         var container, publisherId, session, properties, getMediaSources, mediaSources, publisher, handles;
-        return _regenerator.default.wrap(function _callee5$(_context5) {
+        return _regenerator.default.wrap(function _callee6$(_context6) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context6.prev = _context6.next) {
               case 0:
                 publisherId = (0, _uuid.default)();
                 session = this.getSession();
                 properties = this.props.properties || {};
 
                 if (session) {
-                  _context5.next = 6;
+                  _context6.next = 6;
                   break;
                 }
 
                 this.setState({
                   publisher: null,
-                  lastStreamId: ''
+                  lastStreamId: ""
                 });
-                return _context5.abrupt("return");
+                return _context6.abrupt("return");
 
               case 6:
                 if (properties.insertDefaultUI !== false) {
-                  container = document.createElement('div');
-                  container.setAttribute('class', 'OTPublisherContainer');
+                  container = document.createElement("div");
+                  container.setAttribute("class", "OTPublisherContainer");
                   this.node.appendChild(container);
                 }
 
@@ -419,16 +440,25 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
                     return;
                   }
 
-                  if (typeof _this5.props.onError === 'function') {
+                  if (typeof _this5.props.onError === "function") {
                     _this5.props.onError(err);
                   }
                 });
-                getMediaSources = properties.videoSource === 'screen' ? getScreenShareMediaSources : getCameraShareMediaSources;
-                _context5.next = 13;
+                getMediaSources = properties.videoSource === "screen" ? this.getScreenShareMediaSources : this.getCameraShareMediaSources;
+                _context6.next = 13;
                 return getMediaSources();
 
               case 13:
-                mediaSources = _context5.sent;
+                mediaSources = _context6.sent;
+
+                if (mediaSources) {
+                  _context6.next = 16;
+                  break;
+                }
+
+                return _context6.abrupt("return");
+
+              case 16:
                 publisher = OT.initPublisher(container, _objectSpread(_objectSpread({}, properties), mediaSources), function (err) {
                   if (publisherId !== _this5.publisherId) {
                     // Either this publisher has been recreated or the
@@ -438,13 +468,13 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
 
                   if (err) {
                     _this5.errorHandler(err);
-                  } else if (typeof _this5.props.onInit === 'function') {
+                  } else if (typeof _this5.props.onInit === "function") {
                     _this5.props.onInit();
                   }
                 });
-                publisher.on('streamCreated', this.streamCreatedHandler);
+                publisher.on("streamCreated", this.streamCreatedHandler);
 
-                if (this.props.eventHandlers && typeof this.props.eventHandlers === 'object') {
+                if (this.props.eventHandlers && typeof this.props.eventHandlers === "object") {
                   handles = (0, _fp.omitBy)(_fp.isNil)(Object.assign({}, this.props.eventHandlers, {
                     audioLevel: null,
                     audioLevelUpdated: null
@@ -454,23 +484,23 @@ var OTPublisher = /*#__PURE__*/function (_Component) {
 
                 this.setState({
                   publisher,
-                  lastStreamId: ''
+                  lastStreamId: ""
                 });
 
                 if (session) {
                   if (session.connection) {
                     this.publishToSession(publisher);
                   } else {
-                    session.once('sessionConnected', this.sessionConnectedHandler);
+                    session.once("sessionConnected", this.sessionConnectedHandler);
                   }
                 }
 
-              case 19:
+              case 21:
               case "end":
-                return _context5.stop();
+                return _context6.stop();
             }
           }
-        }, _callee5, this);
+        }, _callee6, this);
       }));
 
       function createPublisher() {
@@ -540,7 +570,7 @@ OTPublisher.propTypes = {
 };
 OTPublisher.defaultProps = {
   session: null,
-  className: '',
+  className: "",
   style: {},
   properties: {},
   eventHandlers: null,
